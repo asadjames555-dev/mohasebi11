@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#059669">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>محاسبي</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23059669'/><text x='50' y='74' font-size='58' text-anchor='middle'>💰</text></svg>">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Cairo', 'system-ui', 'sans-serif'] } } } }</script>
+<style>
+  * { font-family: 'Cairo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: manipulation; margin: 0; padding: 0; }
+  body { user-select: none; -webkit-user-select: none; background: #e2e8f0; }
+  input, textarea, select { user-select: text; -webkit-user-select: text; font-size: 16px !important; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=password] { letter-spacing: 0.35em; }
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .app-page { position: fixed; inset: 0; display: flex; flex-direction: column; background: #f8fafc; }
+  .page-view { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 180px; }
+  .bottom-nav { display: flex; background: white; border-top: 1px solid #e2e8f0; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -2px 12px rgba(0,0,0,.04); }
+  .nav-item { flex: 1; padding: 8px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #94a3b8; transition: color .2s; background: none; border: none; cursor: pointer; }
+  .nav-item.active { color: #059669; }
+  .nav-item .icon { font-size: 24px; line-height: 1; }
+  .nav-item .label { font-size: 12px; font-weight: 800; }
+  .chip { flex-shrink: 0; padding: 10px 18px; border-radius: 22px; font-weight: 800; font-size: 15px; background: white; color: #475569; border: 1.5px solid #e2e8f0; transition: all .2s; cursor: pointer; }
+  .chip.active { background: linear-gradient(135deg,#059669,#0891b2); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(5,150,105,.35); }
+  .item-card { background: white; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 6px; border: 1.5px solid #f1f5f9; box-shadow: 0 2px 6px rgba(0,0,0,.03); transition: transform .15s; min-height: 100px; cursor: pointer; }
+  .item-card:active { transform: scale(.96); }
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 98; backdrop-filter: blur(2px); }
+  .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; background: white; border-radius: 28px 28px 0 0; transform: translateY(100%); transition: transform .32s cubic-bezier(.4,0,.2,1); z-index: 100; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,.18); }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 44px; height: 5px; background: #cbd5e1; border-radius: 3px; margin: 12px auto 6px; flex-shrink: 0; }
+  .sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); flex: 1; }
+  .sub-page { position: fixed; inset: 0; background: #f8fafc; transform: translateX(100%); transition: transform .28s cubic-bezier(.4,0,.2,1); z-index: 90; display: flex; flex-direction: column; }
+  .sub-page.open { transform: translateX(0); }
+  .sub-page-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .fab { position: fixed; bottom: 105px; left: 16px; width: 60px; height: 60px; border-radius: 30px; background: linear-gradient(135deg,#059669,#0891b2); color: white; font-size: 32px; line-height: 1; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(5,150,105,.45); z-index: 50; border: none; transition: transform .2s; font-weight: 300; cursor: pointer; }
+  .fab:active { transform: scale(.9); }
+  .cart-bar { position: fixed; bottom: 78px; left: 12px; right: 12px; background: linear-gradient(135deg,#059669,#0891b2); color: white; border-radius: 20px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(5,150,105,.4); z-index: 45; transition: transform .3s; border: none; font-family: inherit; cursor: pointer; }
+  .cart-bar.hidden-bar { transform: translateY(200%); }
+  .fab.hidden-fab { transform: translateY(200%); opacity: 0; pointer-events: none; }
+  .badge { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 11px; background: #ef4444; color: white; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 6px; border: 2px solid white; }
+  .modal-center { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 110; pointer-events: none; }
+  .modal-center.open { pointer-events: auto; }
+  .modal-center .modal-box { background: white; border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; transform: scale(.9); opacity: 0; transition: all .25s; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  .modal-center.open .modal-box { transform: scale(1); opacity: 1; }
+  .gradient-text { background: linear-gradient(135deg, #059669, #0891b2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .input-base { width: 100%; padding: 14px 16px; border-radius: 16px; border: 2px solid #e2e8f0; font-size: 16px; font-weight: 600; transition: border-color .2s; background: white; color: #0f172a; }
+  .input-base:focus { outline: none; border-color: #059669; }
+  .input-base::placeholder { color: #94a3b8; font-weight: 500; }
+  .btn-primary { padding: 16px 20px; border-radius: 18px; background: linear-gradient(135deg,#059669,#0891b2); color: white; font-weight: 800; font-size: 17px; border: none; width: 100%; box-shadow: 0 6px 20px rgba(5,150,105,.3); transition: transform .15s; cursor: pointer; }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-secondary { padding: 14px 18px; border-radius: 16px; background: #f1f5f9; color: #475569; font-weight: 700; font-size: 15px; border: none; width: 100%; transition: background .2s; cursor: pointer; }
+  .btn-secondary:active { background: #e2e8f0; }
+  .scan-overlay { position: fixed; inset: 0; background: #000; z-index: 200; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .scan-overlay.open { opacity: 1; pointer-events: auto; }
+  .scan-header { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; }
+  .scan-body { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #universalReader { width: 100%; height: 100%; }
+  #universalReader video { width: 100% !important; height: 100% !important; object-fit: cover; display: block !important; }
+  #universalReader__scan_region { background: transparent !important; }
+  #universalReader__scan_region img { display: none !important; }
+  .scan-frame { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+  .scan-box { width: 90%; height: 50%; max-width: 600px; max-height: 400px; border: 3px solid #10b981; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,.5); position: relative; }
+  .scan-box::before { content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #10b981; box-shadow: 0 0 12px #10b981; animation: scanline 2s infinite linear; }
+  @keyframes scanline { 0% { top: 20%; } 50% { top: 80%; } 100% { top: 20%; } }
+  .scan-footer { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); text-align: center; }
+  .sale-confirm-box { background: white; border-radius: 28px; padding: 0; width: 100%; max-width: 400px; overflow: hidden; transform: scale(.9); opacity: 0; transition: all .3s; box-shadow: 0 24px 70px rgba(0,0,0,.4); }
+  .modal-center.open .sale-confirm-box { transform: scale(1); opacity: 1; }
+  #qrCanvas canvas, #qrCanvas img { display: block; margin: 0 auto; }
+  @media print { body * { visibility: hidden !important; } #printArea, #printArea * { visibility: visible !important; } #printArea { position: absolute !important; top:0; right:0; left:0; width:100%; padding:20px; background:white; } }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .fade-in { animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+
+  /* ==================== Desktop ==================== */
+  @media (min-width: 768px) {
+    .app-page { left: 50%; right: auto; width: 500px; margin-left: -250px; box-shadow: 0 0 80px rgba(15,23,42,.15); }
+    .sheet { left: 50%; right: auto; width: 500px; margin-left: -250px; }
+    .sheet-body { padding-left: 24px; padding-right: 24px; }
+    .sub-page { left: 50%; right: auto; width: 500px; margin-left: -250px; }
+    .cart-bar { left: 50%; right: auto; width: 476px; margin-left: -238px; }
+    .fab { left: calc(50% - 250px + 16px); }
+    .scan-overlay { left: 50%; right: auto; width: 500px; margin-left: -250px; }
+    .sheet-overlay { left: 50%; right: auto; width: 500px; margin-left: -250px; }
+    .modal-center { left: 50%; right: auto; width: 500px; margin-left: -250px; }
+    .sub-page:not(.open) { transform: translateX(100%); }
+  }
+</style>
+</head>
+<body>
+
+
+<!-- ==================== شاشة الترخيص ==================== -->
+<div id="licenseScreen" class="app-page hidden" style="background: linear-gradient(135deg,#4f46e5,#7c3aed,#db2777);">
+  <div class="flex-1 flex items-center justify-center p-5 safe-top safe-bottom">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-7">
+      <div class="text-center mb-7">
+        <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl mb-5 text-5xl">🔑</div>
+        <h1 class="text-3xl font-black gradient-text mb-2">تفعيل النسخة</h1>
+        <p class="text-slate-500 text-base">أدخل مفتاح الترخيص</p>
+      </div>
+      <input id="licenseInput" placeholder="MC-XXXXXXXX-XXXXXXXX" class="input-base text-center font-mono !text-lg mb-4" autocomplete="off" spellcheck="false">
+      <div id="licenseError" class="hidden text-red-600 text-base text-center font-bold bg-red-50 rounded-2xl py-3 mb-4"></div>
+      <button id="activateBtn" class="btn-primary !py-5 !text-lg">🔓 تفعيل</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== شاشة الدخول ==================== -->
+<div id="loginScreen" class="app-page hidden" style="background: linear-gradient(135deg,#059669,#14b8a6,#06b6d4);">
+  <div class="flex-1 flex items-center justify-center p-5 safe-top safe-bottom">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-7">
+      <div class="text-center mb-7">
+        <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-xl mb-5 text-5xl">🧾</div>
+        <h1 class="text-3xl font-black gradient-text mb-2">محاسبي</h1>
+        <p class="text-slate-500 text-base">نظام البيع والجرد الاحترافي</p>
+      </div>
+      <input id="passwordInput" type="password" placeholder="••••••••" autocomplete="new-password" spellcheck="false" class="input-base text-center !text-xl mb-4">
+      <div id="loginError" class="hidden text-red-600 text-base text-center font-bold bg-red-50 rounded-2xl py-3 mb-4"></div>
+      <button id="loginBtn" class="btn-primary !py-5 !text-lg">🔓 دخول</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== التطبيق الرئيسي ==================== -->
+<div id="appScreen" class="app-page hidden">
+
+
+  <header class="bg-white border-b border-slate-100 safe-top" style="z-index: 40; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03);">
+    <div class="px-4 py-3 flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl shadow-lg">🧾</div>
+        <div>
+          <p class="font-black text-lg gradient-text leading-tight">محاسبي</p>
+          <p id="headerDate" class="text-xs text-slate-500 leading-tight"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="scanSaleBtn" class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white active:scale-95 flex items-center justify-center text-xl shadow-lg transition" title="مسح سريع">📷</button>
+        <button id="printToggleBtn" class="w-11 h-11 rounded-2xl bg-slate-100 active:bg-slate-200 flex items-center justify-center text-xl transition" title="الطباعة">🖨️</button>
+        <button id="settingsBtn" class="w-11 h-11 rounded-2xl bg-slate-100 active:bg-slate-200 flex items-center justify-center text-xl transition" title="الإعدادات">⚙️</button>
+      </div>
+    </div>
+  </header>
+
+
+  <div class="flex-1 relative overflow-hidden">
+
+
+    <!-- عرض البيع -->
+    <div id="salesView" class="page-view absolute inset-0 hidden">
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pt-4 pb-3 px-4" id="categoriesBar"></div>
+      <div class="px-4">
+        <div class="flex items-center justify-between mb-3">
+          <p id="categoryTitle" class="font-black text-lg text-slate-700">اختر نوع مادة</p>
+          <span id="materialsCount" class="text-sm text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl font-bold"></span>
+        </div>
+        <div id="itemsGrid" class="grid grid-cols-2 gap-3"></div>
+        <div id="emptyItems" class="hidden text-center py-20">
+          <div class="text-7xl mb-4 opacity-30">📦</div>
+          <p class="text-slate-500 font-bold text-lg">لا توجد مواد</p>
+          <p class="text-slate-400 text-base mt-1">اضغط + لإضافة مواد</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- عرض الطلبات -->
+    <div id="ordersView" class="page-view absolute inset-0 hidden">
+      <div class="p-4">
+        <input id="errorsSearch" placeholder="🔍 بحث برقم الطلب..." class="input-base mb-4">
+        <div id="ordersList" class="space-y-3"></div>
+        <div id="emptyOrders" class="hidden text-center py-20">
+          <div class="text-7xl mb-4 opacity-30">📭</div>
+          <p class="text-slate-500 font-bold text-lg">لا توجد طلبات</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- عرض الجرد -->
+    <div id="inventoryView" class="page-view absolute inset-0 hidden">
+      <div class="p-4 space-y-4">
+        <div>
+          <p class="text-sm font-black text-slate-600 mb-2">⏱️ الفترة الزمنية</p>
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button data-inv="live" class="chip inv-tab">🌐 لحظي</button>
+            <button data-inv="daily" class="chip inv-tab">📅 اليوم</button>
+            <button data-inv="monthly" class="chip inv-tab">🗓️ الشهر</button>
+            <button data-inv="yearly" class="chip inv-tab">📆 السنة</button>
+            <button data-inv="custom" class="chip inv-tab">🎯 مخصصة</button>
+          </div>
+        </div>
+        <div id="customRangeWrap" class="hidden bg-white rounded-2xl p-4 border border-slate-100">
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="text-xs font-bold text-slate-500 block mb-1">من:</label><input type="date" id="dateFrom" class="input-base !py-3 !text-sm"></div>
+            <div><label class="text-xs font-bold text-slate-500 block mb-1">إلى:</label><input type="date" id="dateTo" class="input-base !py-3 !text-sm"></div>
+          </div>
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button data-quick="1" class="chip quick-range !text-xs !py-2">اليوم</button>
+            <button data-quick="3" class="chip quick-range !text-xs !py-2">3 أيام</button>
+            <button data-quick="7" class="chip quick-range !text-xs !py-2">أسبوع</button>
+            <button data-quick="14" class="chip quick-range !text-xs !py-2">14 يوم</button>
+            <button data-quick="30" class="chip quick-range !text-xs !py-2">شهر</button>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-black text-slate-600 mb-2">🔍 تصفية المواد</p>
+          <div class="flex gap-2">
+            <button data-filter="all" class="chip inv-filter flex-1 !justify-center">📋 الكل</button>
+            <button data-filter="single" class="chip inv-filter flex-1 !justify-center">1️⃣ واحدة</button>
+            <button data-filter="multi" class="chip inv-filter flex-1 !justify-center">🔢 عدة</button>
+          </div>
+          <div id="singleSelectWrap" class="hidden mt-3"><select id="singleMaterialSelect" class="input-base"><option value="">— اختر مادة —</option></select></div>
+          <div id="multiSelectWrap" class="hidden mt-3">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-bold text-slate-600">اختر المواد:</span>
+              <div class="flex gap-2">
+                <button id="selectAllMats" class="text-xs px-3 py-2 rounded-xl bg-emerald-100 text-emerald-700 font-bold">✔️ الكل</button>
+                <button id="clearAllMats" class="text-xs px-3 py-2 rounded-xl bg-red-50 text-red-600 font-bold">✖️ إلغاء</button>
+              </div>
+            </div>
+            <div id="multiMaterialsList" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto bg-white rounded-xl p-2 border border-slate-100"></div>
+            <p id="multiCountText" class="text-xs text-emerald-700 font-bold mt-2"></p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200"><p class="text-xs font-bold text-blue-700 mb-2">💵 المبيعات</p><div id="invSales" class="text-lg font-black text-blue-700">0</div></div>
+          <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-4 border border-red-200"><p class="text-xs font-bold text-red-700 mb-2">📦 المشتريات</p><div id="invPurchases" class="text-lg font-black text-red-700">0</div></div>
+          <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 border border-orange-200"><p class="text-xs font-bold text-orange-700 mb-2">💸 المصروفات</p><div id="invExpenses" class="text-lg font-black text-orange-700">0</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-4 border border-amber-200"><p class="text-xs font-bold text-amber-700 mb-2">💳 ديون</p><div id="invDebts" class="text-lg font-black text-amber-700">0</div></div>
+          <div class="col-span-2 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-5 border-2 border-emerald-300"><p class="text-sm font-black text-emerald-700 mb-2">💎 صافي الربح</p><div id="invProfit" class="text-2xl font-black text-emerald-700">0</div></div>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="bg-white rounded-2xl p-3 text-center border border-slate-100"><p class="text-[10px] text-slate-500 font-bold">طلبات</p><p id="invOrdersCount" class="text-xl font-black text-slate-700">0</p></div>
+          <div class="bg-white rounded-2xl p-3 text-center border border-slate-100"><p class="text-[10px] text-slate-500 font-bold">مواد</p><p id="invMaterialsCount" class="text-xl font-black text-slate-700">0</p></div>
+          <div class="bg-white rounded-2xl p-3 text-center border border-slate-100"><p class="text-[10px] text-slate-500 font-bold">أعلى</p><p id="invTopOrder" class="text-xl font-black text-slate-700">0</p></div>
+          <div class="bg-white rounded-2xl p-3 text-center border border-slate-100"><p class="text-[10px] text-slate-500 font-bold">كمية</p><p id="invTotalQty" class="text-xl font-black text-slate-700">0</p></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-black text-base text-slate-700">🕐 سجل الطلبات</h3>
+            <span id="invOrdersListRange" class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg font-bold"></span>
+          </div>
+          <div id="invOrdersList" class="space-y-2.5"></div>
+          <div id="invOrdersEmpty" class="hidden text-center py-6"><p class="text-slate-400 text-sm">لا توجد طلبات</p></div>
+        </div>
+        <div>
+          <h3 class="font-black text-base text-slate-700 mb-3">📋 تفاصيل المواد</h3>
+          <div id="invDetailsList" class="space-y-2.5"></div>
+          <div id="invEmpty" class="hidden text-center py-6"><p class="text-slate-400 text-sm">لا توجد بيانات</p></div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <!-- شريط السلة -->
+  <button id="cartBar" class="cart-bar hidden-bar" onclick="openCartSheet()">
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <span class="text-3xl">🛒</span>
+        <span id="cartBadge" class="badge">0</span>
+      </div>
+      <div class="text-right">
+        <p class="text-xs font-bold opacity-95">الطلب الحالي</p>
+        <p id="cartTotalsDisplay" class="text-base font-black">0 ل.س</p>
+      </div>
+    </div>
+    <span class="text-3xl opacity-80">‹</span>
+  </button>
+
+
+  <button id="fabAdd" class="fab" onclick="openAddSheet()">＋</button>
+
+
+  <nav class="bottom-nav" style="flex-shrink: 0;">
+    <button data-tab="sales" class="nav-item active"><span class="icon">🛒</span><span class="label">بيع</span></button>
+    <button data-tab="orders" class="nav-item"><span class="icon">📋</span><span class="label">الطلبات</span></button>
+    <button data-tab="inventory" class="nav-item"><span class="icon">📊</span><span class="label">الجرد</span></button>
+    <button id="moreTabBtn" class="nav-item"><span class="icon">☰</span><span class="label">المزيد</span></button>
+  </nav>
+
+
+</div>
+
+
+<!-- ==================== الطبقة الشفافة ==================== -->
+<div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
+
+
+<!-- ==================== شيت السلة ==================== -->
+<div id="cartSheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
+    <div class="flex items-center gap-3">
+      <h2 class="font-black text-xl gradient-text">🛒 الطلب الحالي</h2>
+      <span id="orderNumberPreview" class="text-sm font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1.5 rounded-xl">#1</span>
+    </div>
+    <button onclick="closeAllSheets()" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-lg text-slate-500">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div id="cartList" class="space-y-3 mb-4"><p class="text-center text-slate-400 py-10 text-base">🛒 السلة فارغة</p></div>
+    <div class="bg-gradient-to-l from-emerald-50 to-teal-50 rounded-2xl p-5 border-2 border-emerald-200 mb-3">
+      <p class="text-sm font-bold text-slate-600 mb-2">الإجمالي</p>
+      <div id="cartTotalsDisplay2" class="font-black text-emerald-700 text-3xl leading-tight">0 ل.س</div>
+    </div>
+    <button id="confirmSaleBtn" class="btn-primary !py-5 !text-lg mb-3">✅ تأكيد البيع</button>
+    <button id="clearCartBtn" class="btn-secondary">🗑️ إفراغ السلة</button>
+  </div>
+</div>
+
+
+<!-- ==================== شيت إضافة المواد ==================== -->
+<div id="addSheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
+    <h2 class="font-black text-xl gradient-text">➕ إضافة مواد</h2>
+    <button onclick="closeAllSheets()" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-lg text-slate-500">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="mb-4">
+      <label class="block text-base font-bold mb-2 text-slate-700">نوع المادة (القسم)</label>
+      <input id="categoryInput" placeholder="مثال: مشروبات" class="input-base">
+      <p id="existingCats" class="text-xs text-slate-400 mt-2"></p>
+    </div>
+    <div class="bg-slate-50 rounded-2xl p-3 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <p class="font-bold text-base text-slate-700">المواد</p>
+        <button id="addRowBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold shadow">➕ صف جديد</button>
+      </div>
+      <div id="rowsContainer" class="space-y-3"></div>
+    </div>
+    <button id="saveMaterialsBtn" class="btn-primary !py-5 !text-lg">💾 إضافة الكل</button>
+  </div>
+</div>
+
+
+<!-- ==================== شيت المزيد ==================== -->
+<div id="moreSheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="px-5 pt-2 pb-4 border-b border-slate-100">
+    <h2 class="font-black text-xl gradient-text">☰ المزيد</h2>
+  </div>
+  <div class="sheet-body">
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="openEditSheet()" class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-5 border-2 border-emerald-100 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">✏️</div><p class="font-black text-base text-slate-700">تعديل مادة</p></button>
+      <button onclick="openExpensesPage()" class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-5 border-2 border-red-100 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">💸</div><p class="font-black text-base text-slate-700">المصروفات</p></button>
+      <button onclick="openDebtsPage()" class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-5 border-2 border-amber-100 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">💳</div><p class="font-black text-base text-slate-700">الديون</p></button>
+      <button onclick="openBackupPage()" class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border-2 border-indigo-100 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">💾</div><p class="font-black text-base text-slate-700">النسخ الاحتياطي</p></button>
+      <button onclick="openQrDisplaySheet()" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border-2 border-blue-100 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">🖼️</div><p class="font-black text-base text-slate-700">عرض QR</p></button>
+      <button onclick="doLogout()" class="bg-gradient-to-br from-red-100 to-red-50 rounded-2xl p-5 border-2 border-red-200 active:scale-[0.97] transition text-right"><div class="text-4xl mb-2">🚪</div><p class="font-black text-base text-red-700">خروج</p></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== شيت تعديل مادة ==================== -->
+<div id="editSheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
+    <h2 class="font-black text-xl gradient-text">✏️ تعديل مادة</h2>
+    <button onclick="closeAllSheets()" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-lg text-slate-500">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="mb-3">
+      <label class="block text-base font-bold mb-2 text-slate-700">1️⃣ اختر القسم</label>
+      <select id="editCategorySelect" class="input-base"><option value="">— اختر القسم —</option></select>
+    </div>
+    <div class="mb-4">
+      <label class="block text-base font-bold mb-2 text-slate-700">2️⃣ اختر المادة</label>
+      <select id="editMaterialSelect" class="input-base" disabled><option value="">— اختر القسم أولاً —</option></select>
+    </div>
+    <div id="editForm" class="hidden space-y-3">
+      <div><label class="text-sm font-bold text-slate-600 block mb-1">اسم المادة</label><input id="editName" class="input-base"></div>
+      <div>
+        <label class="text-sm font-bold text-slate-600 block mb-1">الباركود</label>
+        <div class="flex gap-2">
+          <input id="editBarcode" class="input-base flex-1" placeholder="امسحه أو اكتبه يدوياً">
+          <button type="button" onclick="startScanner('fill', document.getElementById('editBarcode'))" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-2xl flex items-center justify-center active:scale-95 shadow flex-shrink-0">📷</button>
+        </div>
+      </div>
+      <div><label class="text-sm font-bold text-slate-600 block mb-1">النوع</label><input id="editCat" class="input-base"></div>
+      <div class="grid grid-cols-3 gap-2">
+        <div><label class="text-xs font-bold text-slate-600 block mb-1">الكمية</label><input id="editQty" type="number" class="input-base !px-2 text-center"></div>
+        <div><label class="text-xs font-bold text-slate-600 block mb-1">شراء</label><input id="editBuy" type="number" class="input-base !px-2 text-center"></div>
+        <div><label class="text-xs font-bold text-slate-600 block mb-1">بيع</label><input id="editSell" type="number" class="input-base !px-2 text-center"></div>
+      </div>
+      <div class="flex items-center gap-3"><span class="text-sm font-bold text-slate-600">العملة:</span><button id="editCurBtn" class="px-5 py-2.5 rounded-xl border-2 text-sm font-bold">ل.س</button></div>
+      <div class="flex gap-2 pt-2">
+        <button id="saveEditBtn" class="btn-primary flex-1">💾 حفظ</button>
+        <button id="deleteEditBtn" class="px-6 py-4 rounded-2xl bg-red-50 text-red-600 font-bold border-2 border-red-100 active:bg-red-100 transition text-lg">🗑️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== شيت عرض QR ==================== -->
+<div id="qrDisplaySheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
+    <h2 class="font-black text-xl gradient-text">🖼️ عرض QR للمادة</h2>
+    <button onclick="closeAllSheets()" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-lg text-slate-500">✕</button>
+  </div>
+  <div class="sheet-body">
+    <select id="qrMaterialSelect" class="input-base mb-4"><option value="">— اختر مادة —</option></select>
+    <div id="qrCanvas" class="flex justify-center p-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl"></div>
+    <p class="text-xs text-slate-500 text-center mt-3">اطبع هذا الكود والزقه على المادة — أي جهاز يقدر يقرأه</p>
+  </div>
+</div>
+
+
+<!-- ==================== صفحة المصروفات ==================== -->
+<div id="expensesPage" class="sub-page">
+  <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
+    <div class="px-4 py-3 flex items-center gap-3 h-16">
+      <button onclick="closeSubPage('expensesPage')" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-xl text-slate-600">→</button>
+      <h1 class="font-black text-lg text-slate-700">💸 المصروفات</h1>
+    </div>
+  </header>
+  <div class="sub-page-body">
+    <div class="p-4 space-y-4">
+      <div class="bg-white rounded-2xl p-4 border-2 border-slate-100">
+        <p class="font-black text-base mb-3 text-slate-700">➕ إضافة مصروف</p>
+        <input id="expName" placeholder="اسم المصروف" class="input-base mb-3">
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <input id="expPrice" type="number" placeholder="السعر" class="input-base text-center">
+          <select id="expCur" class="input-base"></select>
+        </div>
+        <input id="expDate" type="date" class="input-base mb-3">
+        <button id="addExpBtn" class="btn-primary" style="background: linear-gradient(135deg,#dc2626,#ea580c); box-shadow: 0 6px 20px rgba(220,38,38,.3);">➕ إضافة</button>
+      </div>
+      <div id="expensesTable" class="space-y-2.5"></div>
+      <div id="emptyExpenses" class="hidden text-center py-10 text-slate-400"><div class="text-6xl mb-3 opacity-40">📭</div><p class="font-bold text-base">لا توجد مصروفات</p></div>
+      <div class="bg-gradient-to-l from-red-50 to-orange-50 rounded-2xl p-5 border-2 border-red-100"><p class="text-sm font-bold text-slate-600 mb-2">إجمالي المصروفات:</p><div id="expTotal" class="font-black text-red-700 text-2xl">0</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== صفحة الديون ==================== -->
+<div id="debtsPage" class="sub-page">
+  <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
+    <div class="px-4 py-3 flex items-center gap-3 h-16">
+      <button onclick="closeSubPage('debtsPage')" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-xl text-slate-600">→</button>
+      <h1 class="font-black text-lg text-slate-700">💳 الديون</h1>
+    </div>
+  </header>
+  <div class="sub-page-body">
+    <div class="p-4 space-y-4">
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-2xl p-3 border border-amber-200 text-center"><p class="text-xs font-bold text-amber-700 mb-1">غير مدفوعة</p><div id="debtUnpaidTotal" class="text-sm font-black text-amber-700">0</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-2xl p-3 border border-emerald-200 text-center"><p class="text-xs font-bold text-emerald-700 mb-1">مدفوعة</p><div id="debtPaidTotal" class="text-sm font-black text-emerald-700">0</div></div>
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-3 border border-slate-200 text-center"><p class="text-xs font-bold text-slate-600 mb-1">العدد</p><div id="debtCount" class="text-sm font-black text-slate-700">0</div></div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border-2 border-slate-100">
+        <p class="font-black text-base mb-3 text-slate-700">➕ إضافة دين</p>
+        <input id="debtName" placeholder="اسم الزبون" class="input-base mb-3">
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <select id="debtCur" class="input-base"></select>
+          <input id="debtDate" type="date" class="input-base">
+        </div>
+        <select id="debtCategorySelect" class="input-base mb-3"><option value="">— كل الأقسام —</option></select>
+        <div id="debtMaterialsList" class="space-y-2.5 max-h-72 overflow-y-auto bg-slate-50 rounded-2xl p-3 border-2 border-slate-100 mb-3"></div>
+        <div class="bg-gradient-to-l from-amber-100 to-yellow-100 rounded-2xl p-4 border-2 border-amber-300 flex items-center justify-between mb-3">
+          <span class="font-bold text-slate-700 text-base">💰 الإجمالي:</span>
+          <span id="debtAutoTotal" class="font-black text-amber-800 text-xl">0 ل.س</span>
+        </div>
+        <button id="addDebtBtn" class="btn-primary" style="background: linear-gradient(135deg,#d97706,#eab308); box-shadow: 0 6px 20px rgba(217,119,6,.3);">➕ إضافة الدين</button>
+      </div>
+      <p class="font-black text-base text-slate-700">📋 قائمة الديون</p>
+      <div id="debtsList" class="space-y-3"></div>
+      <div id="emptyDebts" class="hidden text-center py-10 text-slate-400"><div class="text-6xl mb-3 opacity-40">📭</div><p class="font-bold text-base">لا توجد ديون</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== صفحة النسخ الاحتياطي ==================== -->
+<div id="backupPage" class="sub-page">
+  <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
+    <div class="px-4 py-3 flex items-center gap-3 h-16">
+      <button onclick="closeSubPage('backupPage')" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-xl text-slate-600">→</button>
+      <h1 class="font-black text-lg text-slate-700">💾 النسخ الاحتياطي</h1>
+    </div>
+  </header>
+  <div class="sub-page-body">
+    <div class="p-4 space-y-4">
+      <div id="backupStatusCard" class="bg-gradient-to-l from-emerald-50 to-teal-50 rounded-2xl p-5 border-2 border-emerald-100">
+        <div class="flex items-center gap-4">
+          <div id="backupStatusIcon" class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl shadow">📁</div>
+          <div class="flex-1">
+            <p id="backupStatusTitle" class="font-black text-slate-800 text-base">لم يتم الربط بعد</p>
+            <p id="backupStatusSub" class="text-sm text-slate-500 mt-0.5">اضغط "احفظ الملف" للبدء</p>
+          </div>
+        </div>
+      </div>
+      <button id="saveFileBtn" class="w-full text-right rounded-3xl p-6 shadow-lg active:scale-[0.98] transition" style="background: linear-gradient(135deg,#059669,#0891b2);">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/25 flex items-center justify-center text-4xl">💾</div>
+          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">احفظ الملف</p><p class="text-sm opacity-95 leading-snug">اختر مكان الحفظ — التطبيق رح يحفظ تلقائياً مع كل تعديل</p></div>
+        </div>
+      </button>
+      <button id="restoreFileBtn" class="w-full text-right rounded-3xl p-6 shadow-lg active:scale-[0.98] transition" style="background: linear-gradient(135deg,#2563eb,#4f46e5);">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/25 flex items-center justify-center text-4xl">📥</div>
+          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">استرداد البيانات</p><p class="text-sm opacity-95 leading-snug">اختر الملف المحفوظ — كل البيانات رح ترجع</p></div>
+        </div>
+      </button>
+      <div class="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-5 border border-slate-100">
+        <p class="font-black text-slate-700 text-base mb-3">💡 كيف يعمل؟</p>
+        <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
+          <li>1️⃣ اضغط "احفظ الملف" واختر مكان على جهازك.</li>
+          <li>2️⃣ <b>كل تعديل يُحفظ تلقائياً في الملف.</b></li>
+          <li>3️⃣ لو حذفت بياناتك — <b>الملف يبقى محفوظ!</b></li>
+          <li>4️⃣ اضغط "استرداد البيانات" — اختر الملف — رجع كل شي.</li>
+        </ul>
+        <div class="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 leading-relaxed">
+          ⚠️ احفظ الملف بمكان آمن (Google Drive، إيميلك، أو USB).
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== صفحة الإعدادات ==================== -->
+<div id="settingsPage" class="sub-page">
+  <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
+    <div class="px-4 py-3 flex items-center gap-3 h-16">
+      <button onclick="closeSubPage('settingsPage')" class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-xl text-slate-600">→</button>
+      <h1 class="font-black text-lg text-slate-700">⚙️ الإعدادات</h1>
+    </div>
+  </header>
+  <div class="sub-page-body">
+    <div class="p-4 space-y-4">
+      <div class="bg-gradient-to-l from-emerald-50 to-teal-50 rounded-2xl p-5 border-2 border-emerald-100">
+        <p class="text-base font-black text-emerald-800 mb-3">💱 العملة الأساسية</p>
+        <select id="mainCurSelect" class="input-base font-bold"></select>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-100">
+        <p class="text-sm text-slate-500 font-bold mb-2">مفتاح الترخيص:</p>
+        <p id="showLicense" class="text-xs text-emerald-700 font-mono font-bold break-all"></p>
+      </div>
+      <button id="clearAllBtn" class="w-full py-5 rounded-2xl bg-red-50 text-red-600 font-black border-2 border-red-100 active:bg-red-100 transition text-base">🗑️ حذف جميع البيانات</button>
+      <button onclick="doLogout()" class="btn-secondary !py-4">🚪 تسجيل الخروج</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== مودال كلمة السر ==================== -->
+<div id="passModal" class="modal-center">
+  <div class="modal-box">
+    <div class="text-center mb-6">
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-100 to-orange-100 text-red-700 flex items-center justify-center text-4xl mb-4">🔒</div>
+      <h3 class="text-xl font-black text-slate-800">كلمة السر مطلوبة</h3>
+      <p id="passModalMsg" class="text-slate-500 text-sm mt-2"></p>
+    </div>
+    <input id="passModalInput" type="password" autocomplete="new-password" placeholder="••••••••" spellcheck="false" class="input-base text-center !text-xl mb-3">
+    <div id="passModalError" class="hidden text-red-600 text-sm text-center font-bold bg-red-50 rounded-2xl py-3 mb-3"></div>
+    <div class="flex gap-2">
+      <button id="passModalConfirm" class="btn-primary flex-1 !py-4">تأكيد</button>
+      <button id="passModalCancel" class="px-6 py-4 rounded-2xl bg-slate-100 font-bold active:bg-slate-200 transition text-base">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== شاشة المسح ==================== -->
+<div id="scanOverlay" class="scan-overlay">
+  <div class="scan-header">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">📷</span>
+      <div>
+        <p id="scanTitle" class="font-black text-base">جاري المسح...</p>
+        <p id="scanSubtitle" class="text-xs opacity-80">وجّه الكاميرا نحو الباركود أو QR</p>
+      </div>
+    </div>
+    <button onclick="closeScanner()" class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl active:bg-white/30 transition">✕</button>
+  </div>
+  <div class="scan-body">
+    <div id="universalReader"></div>
+    <div class="scan-frame"><div class="scan-box"></div></div>
+  </div>
+  <div class="scan-footer">
+    <div id="scanError" class="hidden text-red-300 text-sm mb-2"></div>
+    <p id="scanHint" class="text-xs opacity-90">التقاط تلقائي — لا تحتاج ضغط شي</p>
+  </div>
+</div>
+
+
+<!-- ==================== مودال تأكيد البيع السريع ==================== -->
+<div id="quickSaleModal" class="modal-center">
+  <div class="sale-confirm-box">
+    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center text-3xl">✅</div>
+          <div>
+            <p class="text-xs opacity-90 font-bold">تم التعرف على المادة</p>
+            <p id="qsName" class="font-black text-lg leading-tight">—</p>
+          </div>
+        </div>
+        <button onclick="closeQuickSale()" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg active:bg-white/30 transition">✕</button>
+      </div>
+      <div class="flex items-center justify-between text-xs opacity-90">
+        <span id="qsBarcode"></span>
+        <span id="qsStock"></span>
+      </div>
+    </div>
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div><p class="text-xs text-slate-500 font-bold">السعر للوحدة</p><p id="qsPrice" class="font-black text-xl text-emerald-700">0</p></div>
+        <div class="text-left"><p class="text-xs text-slate-500 font-bold">الإجمالي</p><p id="qsTotal" class="font-black text-2xl text-slate-800">0</p></div>
+      </div>
+      <div class="bg-slate-50 rounded-2xl p-3 mb-4">
+        <p class="text-xs text-slate-500 font-bold mb-2 text-center">الكمية</p>
+        <div class="flex items-center justify-center gap-4">
+          <button onclick="qsDec()" class="w-14 h-14 rounded-2xl bg-white border-2 border-slate-200 font-bold text-2xl active:bg-slate-100 transition">−</button>
+          <input id="qsQty" type="number" value="1" min="1" class="w-24 text-center font-black text-3xl input-base !py-3" oninput="qsUpdate()">
+          <button onclick="qsInc()" class="w-14 h-14 rounded-2xl bg-white border-2 border-slate-200 font-bold text-2xl active:bg-slate-100 transition">+</button>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="closeQuickSale()" class="px-6 py-4 rounded-2xl bg-slate-100 font-bold active:bg-slate-200 transition text-base">إلغاء</button>
+        <button onclick="qsConfirm()" class="flex-1 btn-primary !py-4 !text-lg">✅ تأكيد البيع</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="printArea" class="hidden"></div>
+
+
+<script>
+/* ============================================================
+   الإعدادات الثابتة
+   ============================================================ */
+const FIXED_PASSWORD = 'qetummmm11';
+const DELETE_PASSWORD = 'qetummmm2245';
+const STORAGE_KEY = 'mohasebi_v13_data';
+const LICENSE_KEY = 'mohasebi_v13_license';
+const SESSION_KEY = 'mohasebi_v13_session';
+const _SECRET_B64 = 'U1lSSUFfTU9IQVNJQkkyMDI1X1NFQ1JFVF9LRVlfRE9fTk9UX1NIQVJF';
+const SECRET = atob(_SECRET_B64);
+
+
+const CURRENCIES = {
+  SYP: { label: 'ل.س', name: 'ليرة سورية' }, USD: { label: '$', name: 'دولار أمريكي' },
+  SAR: { label: 'ر.س', name: 'ريال سعودي' }, AED: { label: 'د.إ', name: 'درهم إماراتي' },
+  EGP: { label: 'ج.م', name: 'جنيه مصري' }, KWD: { label: 'د.ك', name: 'دينار كويتي' },
+  QAR: { label: 'ر.ق', name: 'ريال قطري' }, BHD: { label: 'د.ب', name: 'دينار بحريني' },
+  OMR: { label: 'ر.ع', name: 'ريال عماني' }, JOD: { label: 'د.أ', name: 'دينار أردني' },
+  LBP: { label: 'ل.ل', name: 'ليرة لبنانية' }, IQD: { label: 'د.ع', name: 'دينار عراقي' },
+  YER: { label: 'ر.ي', name: 'ريال يمني' }, LYD: { label: 'د.ل', name: 'دينار ليبي' },
+  TND: { label: 'د.ت', name: 'دينار تونسي' }, DZD: { label: 'د.ج', name: 'دينار جزائري' },
+  MAD: { label: 'د.م', name: 'درهم مغربي' }, SDG: { label: 'ج.س', name: 'جنيه سوداني' },
+  SOS: { label: 'شلن', name: 'شلن صومالي' }, MRU: { label: 'أ.م', name: 'أوقية موريتانية' },
+  DJF: { label: 'ف.ج', name: 'فرنك جيبوتي' }, KMF: { label: 'ف.ق', name: 'فرنك قمري' }
+};
+const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+
+/* ============================================================
+   أدوات مساعدة
+   ============================================================ */
+function curLabel(c) { return (CURRENCIES[c] || CURRENCIES.SYP).label; }
+function curName(c) { return (CURRENCIES[c] || CURRENCIES.SYP).name; }
+function dayName(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return isNaN(d.getTime()) ? '' : ARABIC_DAYS[d.getDay()]; }
+
+
+function strongHash(str) {
+  let h1 = 0x811c9dc5, h2 = 0x12345678, h3 = 5381;
+  let s = String(str);
+  for (let r = 0; r < 7; r++) {
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      h1 = ((h1 ^ c) * 0x01000193) >>> 0;
+      h2 = ((h2 << 5) + h2 + c) >>> 0;
+      h3 = ((h3 << 5) - h3 + c) >>> 0;
+    }
+    s = h1.toString(36) + h2.toString(36) + h3.toString(36);
+  }
+  return (h1.toString(36) + h2.toString(36) + h3.toString(36)).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12).padStart(12, '0');
+}
+
+
+function verifyKey(key) {
+  if (!key) return false;
+  const clean = String(key).trim().toUpperCase().replace(/\s+/g, '');
+  const p = clean.split('-');
+  if (p.length !== 3 || p[0] !== 'MC') return false;
+  if (p[1].length < 4 || p[1].length > 10 || p[2].length !== 12) return false;
+  return p[2] === strongHash(p[1] + SECRET);
+}
+
+
+/* ============================================================
+   الحالة
+   ============================================================ */
+let state = loadState();
+function loadState() {
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch {}
+  return { materials: [], orders: [], notes: {}, expenses: [], mainCurrency: 'SYP', printing: true };
+}
+
+
+let fileHandle = null;
+let _saveTimeout = null, _fileSaveTimeout = null;
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { toast('⚠️ مساحة التخزين ممتلئة', 'error'); }
+  clearTimeout(_saveTimeout);
+  _saveTimeout = setTimeout(updateBackupUI, 300);
+  clearTimeout(_fileSaveTimeout);
+  _fileSaveTimeout = setTimeout(() => autoSaveToFile(), 500);
+}
+
+
+let cart = [], activeCategory = '', currentTab = 'sales';
+let invPeriod = 'live', invFilterType = 'all';
+let invSelectedSingle = '', invSelectedMulti = [], editingMaterialId = null;
+let debtSelected = {}, pendingPasswordAction = null;
+
+
+let scanner = null, scannerStarting = false;
+let scannerMode = 'sale';
+let scannerTargetInput = null;
+let lastScanTime = 0;
+let quickSaleMaterial = null, quickSaleQty = 1;
+let scannerRetries = 0;
+
+
+function mainCur() { return state.mainCurrency || 'SYP'; }
+function fmt(n) { return (Number(n)||0).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+function fmtAmt(n, c) { return fmt(n) + ' ' + curLabel(c); }
+function todayYMD() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function monthYM() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function yearY() { return String(new Date().getFullYear()); }
+function nowTime() { return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }); }
+function arabicDate(d) { return d.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function dateNDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n + 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function dateFmt(s) { if (!s) return ''; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; }
+
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `fixed bottom-32 left-1/2 -translate-x-1/2 z-[300] px-5 py-3.5 rounded-2xl text-white font-black shadow-2xl text-base fade-in ${type==='success'?'bg-gradient-to-r from-emerald-500 to-teal-600':'bg-gradient-to-r from-red-500 to-orange-500'}`;
+  el.style.maxWidth = '90vw'; el.style.textAlign = 'center'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.transition='opacity .3s, transform .3s'; el.style.opacity='0'; el.style.transform='translate(-50%, 12px)'; setTimeout(()=>el.remove(),300); }, 2200);
+}
+
+
+/* ============================================================
+   مودال كلمة السر
+   ============================================================ */
+function askPassword(msg, onSuccess) {
+  document.getElementById('passModalMsg').textContent = msg;
+  document.getElementById('passModalInput').value = '';
+  document.getElementById('passModalError').classList.add('hidden');
+  document.getElementById('passModal').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('passModalInput').focus(), 350);
+  pendingPasswordAction = onSuccess;
+}
+document.getElementById('passModalConfirm').addEventListener('click', () => {
+  if (document.getElementById('passModalInput').value === DELETE_PASSWORD) {
+    document.getElementById('passModal').classList.remove('open');
+    document.getElementById('sheetOverlay').classList.remove('open');
+    const cb = pendingPasswordAction; pendingPasswordAction = null;
+    if (cb) cb();
+  } else {
+    document.getElementById('passModalError').textContent = '❌ كلمة السر غير صحيحة';
+    document.getElementById('passModalError').classList.remove('hidden');
+    document.getElementById('passModalInput').value = '';
+  }
+});
+document.getElementById('passModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('passModalConfirm').click(); });
+document.getElementById('passModalCancel').addEventListener('click', () => {
+  document.getElementById('passModal').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('open');
+  pendingPasswordAction = null;
+});
+
+
+/* ============================================================
+   IndexedDB + حفظ تلقائي
+   ============================================================ */
+function openDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('mohasebiV13', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('handles');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function saveHandle(h) { try { const db = await openDB(); db.transaction('handles','readwrite').objectStore('handles').put(h, 'backup'); } catch(e){} }
+async function loadHandle() { try { const db = await openDB(); const r = db.transaction('handles','readonly').objectStore('handles').get('backup'); return new Promise(res => { r.onsuccess = () => res(r.result); r.onerror = () => res(null); }); } catch(e){ return null; } }
+
+
+async function autoSaveToFile(force = false) {
+  if (!fileHandle) return;
+  const isEmpty = (!state.materials || state.materials.length === 0) && (!state.orders || state.orders.length === 0) && (!state.expenses || state.expenses.length === 0);
+  if (isEmpty && !force) { updateBackupUI(); return; }
+  try {
+    let perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') { perm = await fileHandle.requestPermission({ mode: 'readwrite' }); if (perm !== 'granted') { updateBackupUI(); return; } }
+    const w = await fileHandle.createWritable();
+    await w.write(JSON.stringify(state, null, 2));
+    await w.close();
+    updateBackupUI();
+  } catch(e) { updateBackupUI(); }
+}
+
+
+function updateBackupUI() {
+  const title = document.getElementById('backupStatusTitle');
+  const sub = document.getElementById('backupStatusSub');
+  const icon = document.getElementById('backupStatusIcon');
+  if (!title) return;
+  const isEmpty = (!state.materials || state.materials.length === 0) && (!state.orders || state.orders.length === 0);
+  if (fileHandle) {
+    title.textContent = '✅ الحفظ التلقائي نشط';
+    sub.textContent = isEmpty ? '⚠️ البيانات فاضية — الملف محفوظ' : 'آخر حفظ: ' + new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    icon.textContent = '✅';
+  } else {
+    title.textContent = 'لم يتم الربط بعد';
+    sub.textContent = 'اضغط "احفظ الملف" للبدء';
+    icon.textContent = '📁';
+  }
+}
+
+
+function ensureCurrencies() {
+  let changed = false;
+  state.materials.forEach(m => { if (!m.currency) { m.currency = mainCur(); changed = true; } if (m.barcode === undefined) { m.barcode = ''; changed = true; } });
+  if (!state.mainCurrency) { state.mainCurrency = 'SYP'; changed = true; }
+  if (!state.expenses) { state.expenses = []; changed = true; }
+  if (!state.orders) { state.orders = []; changed = true; }
+  if (!state.notes) { state.notes = {}; changed = true; }
+  if (state.printing === undefined) { state.printing = true; changed = true; }
+  if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+
+function fillCurSelect(sel, def) {
+  if (!sel) return;
+  sel.innerHTML = Object.keys(CURRENCIES).map(k => `<option value="${k}" ${k===def?'selected':''}>${CURRENCIES[k].label} — ${CURRENCIES[k].name}</option>`).join('');
+}
+
+
+/* ============================================================
+   Sheets / Sub-pages
+   ============================================================ */
+function openSheet(id) {
+  closeAllSheets();
+  document.getElementById(id).classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('open');
+}
+function closeAllSheets() {
+  document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open'));
+  document.getElementById('passModal').classList.remove('open');
+  document.getElementById('quickSaleModal').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('open');
+}
+function openSubPage(id) { closeAllSheets(); document.getElementById(id).classList.add('open'); }
+function closeSubPage(id) { document.getElementById(id).classList.remove('open'); }
+
+
+window.openCartSheet = () => { renderCart(); openSheet('cartSheet'); };
+window.openAddSheet = () => {
+  document.getElementById('categoryInput').value = activeCategory || '';
+  document.getElementById('rowsContainer').innerHTML = ''; addRow();
+  const cats = [...new Set(state.materials.map(m => m.category))].filter(Boolean);
+  document.getElementById('existingCats').textContent = cats.length ? 'الأنواع: ' + cats.join('، ') : '';
+  openSheet('addSheet');
+};
+window.openEditSheet = () => {
+  const cats = [...new Set(state.materials.map(m => m.category))].filter(Boolean);
+  document.getElementById('editCategorySelect').innerHTML = '<option value="">— اختر القسم —</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const matSel = document.getElementById('editMaterialSelect');
+  matSel.innerHTML = '<option value="">— اختر القسم أولاً —</option>';
+  matSel.disabled = true;
+  document.getElementById('editForm').classList.add('hidden');
+  editingMaterialId = null;
+  openSheet('editSheet');
+};
+window.openQrDisplaySheet = () => {
+  document.getElementById('qrMaterialSelect').innerHTML = '<option value="">— اختر مادة —</option>' + state.materials.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  document.getElementById('qrCanvas').innerHTML = '';
+  openSheet('qrDisplaySheet');
+};
+window.openExpensesPage = () => { closeAllSheets(); renderExpenses(); openSubPage('expensesPage'); };
+window.openDebtsPage = () => { closeAllSheets(); setupDebtForm(); renderDebts(); openSubPage('debtsPage'); };
+window.openBackupPage = () => { closeAllSheets(); updateBackupUI(); openSubPage('backupPage'); };
+window.openSettingsPage = () => { closeAllSheets(); openSubPage('settingsPage'); };
+
+
+document.getElementById('moreTabBtn').addEventListener('click', () => openSheet('moreSheet'));
+document.getElementById('settingsBtn').addEventListener('click', () => openSettingsPage());
+
+
+/* ============================================================
+   التنقل
+   ============================================================ */
+document.querySelectorAll('.nav-item[data-tab]').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  if (tab === 'sales') {
+    document.getElementById('salesView').classList.remove('hidden');
+    document.querySelector('.nav-item[data-tab="sales"]').classList.add('active');
+    document.getElementById('cartBar').classList.remove('hidden-bar');
+    document.getElementById('fabAdd').classList.remove('hidden-fab');
+  } else if (tab === 'orders') {
+    document.getElementById('ordersView').classList.remove('hidden');
+    document.querySelector('.nav-item[data-tab="orders"]').classList.add('active');
+    document.getElementById('cartBar').classList.add('hidden-bar');
+    document.getElementById('fabAdd').classList.add('hidden-fab');
+    renderOrders();
+  } else if (tab === 'inventory') {
+    document.getElementById('inventoryView').classList.remove('hidden');
+    document.querySelector('.nav-item[data-tab="inventory"]').classList.add('active');
+    document.getElementById('cartBar').classList.add('hidden-bar');
+    document.getElementById('fabAdd').classList.add('hidden-fab');
+    populateInvDropdowns();
+    renderInventory();
+  }
+}
+
+
+/* ============================================================
+   التهيئة
+   ============================================================ */
+function init() {
+  ensureCurrencies();
+  fillCurSelect(document.getElementById('expCur'), 'SYP');
+  fillCurSelect(document.getElementById('debtCur'), 'SYP');
+  fillCurSelect(document.getElementById('mainCurSelect'), mainCur());
+  const stored = localStorage.getItem(LICENSE_KEY);
+  if (stored && verifyKey(stored)) {
+    document.getElementById('loginScreen').classList.remove('hidden');
+  } else {
+    if (stored) localStorage.removeItem(LICENSE_KEY);
+    document.getElementById('licenseScreen').classList.remove('hidden');
+  }
+  loadHandle().then(h => { if (h) { fileHandle = h; updateBackupUI(); } else updateBackupUI(); });
+  updatePrintBtn();
+}
+
+
+document.getElementById('activateBtn').addEventListener('click', () => {
+  const val = document.getElementById('licenseInput').value;
+  if (verifyKey(val)) {
+    localStorage.setItem(LICENSE_KEY, val.trim().toUpperCase());
+    document.getElementById('licenseError').classList.add('hidden');
+    toast('✅ تم التفعيل');
+    document.getElementById('licenseScreen').classList.add('hidden');
+    setTimeout(() => document.getElementById('loginScreen').classList.remove('hidden'), 250);
+  } else {
+    document.getElementById('licenseError').textContent = '❌ مفتاح غير صحيح';
+    document.getElementById('licenseError').classList.remove('hidden');
+    document.getElementById('licenseInput').value = '';
+  }
+});
+document.getElementById('licenseInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('activateBtn').click(); });
+
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+
+function doLogin() {
+  const input = document.getElementById('passwordInput');
+  if (input.value === FIXED_PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('loginError').classList.add('hidden');
+    showApp();
+  } else {
+    document.getElementById('loginError').textContent = '❌ كلمة المرور غير صحيحة';
+    document.getElementById('loginError').classList.remove('hidden');
+    input.value = ''; input.focus();
+  }
+}
+
+
+function showApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('headerDate').textContent = arabicDate(new Date());
+  document.getElementById('showLicense').textContent = localStorage.getItem(LICENSE_KEY) || '';
+  renderCategories();
+  renderCart();
+  switchTab('sales');
+}
+
+
+window.doLogout = function() {
+  if (!confirm('هل تريد تسجيل الخروج؟')) return;
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+};
+
+
+/* ============================================================
+   زر الطباعة
+   ============================================================ */
+function updatePrintBtn() {
+  const b = document.getElementById('printToggleBtn');
+  if (state.printing !== false) { b.textContent = '🖨️'; b.style.opacity = '1'; }
+  else { b.textContent = '🚫'; b.style.opacity = '.6'; }
+}
+document.getElementById('printToggleBtn').addEventListener('click', () => {
+  askPassword('لتغيير حالة الطباعة أدخل كلمة السر', () => {
+    state.printing = state.printing === false ? true : false;
+    saveState();
+    updatePrintBtn();
+    toast(state.printing ? '🖨️ الطباعة مفعلة' : '🚫 الطباعة معطلة');
+  });
+});
+
+
+/* ============================================================
+   شاشة البيع
+   ============================================================ */
+function renderCategories() {
+  const cats = [...new Set(state.materials.map(m => m.category))].filter(Boolean);
+  const bar = document.getElementById('categoriesBar');
+  if (cats.length === 0) {
+    bar.innerHTML = '<p class="text-base text-slate-400 py-2">لا توجد أنواع — أضف مواد من +</p>';
+    document.getElementById('categoryTitle').textContent = 'اختر نوع مادة';
+    renderItems();
+    return;
+  }
+  bar.innerHTML = cats.map(c => {
+    const count = state.materials.filter(m => m.category === c).length;
+    const active = c === activeCategory;
+    return `<button class="chip ${active ? 'active' : ''}" onclick="selectCategory('${esc(c)}')">${esc(c)} <span style="opacity:.6">${count}</span></button>`;
+  }).join('');
+  if (!activeCategory && cats.length > 0) selectCategory(cats[0]);
+  else renderItems();
+}
+
+
+window.selectCategory = function(c) {
+  activeCategory = c;
+  document.getElementById('categoryTitle').textContent = c;
+  renderCategories();
+  renderItems();
+};
+
+
+function renderItems() {
+  const grid = document.getElementById('itemsGrid');
+  const empty = document.getElementById('emptyItems');
+  const list = state.materials.filter(m => m.category === activeCategory && m.qty > 0);
+  document.getElementById('materialsCount').textContent = `${list.length} مادة`;
+  if (list.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  grid.innerHTML = list.map(m => {
+    const cur = m.currency || mainCur();
+    const col = cur === 'USD' ? 'text-indigo-600' : 'text-emerald-700';
+    return `<button onclick="addToCart('${m.id}')" class="item-card text-right">
+      <p class="font-black text-base truncate text-slate-800">${esc(m.name)}</p>
+      <p class="text-xs text-slate-500 font-bold">متوفر: ${fmt(m.qty)}${m.barcode ? ' • ' + esc(m.barcode.slice(-6)) : ''}</p>
+      <p class="${col} font-black text-xl mt-1">${fmt(m.sellPrice)} <span class="text-xs">${curLabel(cur)}</span></p>
+    </button>`;
+  }).join('');
+}
+
+
+window.addToCart = function(materialId, qty) {
+  const m = state.materials.find(x => x.id === materialId);
+  if (!m || m.qty <= 0) return toast('الكمية غير متوفرة', 'error');
+  qty = qty || 1;
+  const cur = m.currency || mainCur();
+  const ex = cart.find(c => c.materialId === materialId);
+  if (ex) {
+    if (ex.qty + qty > m.qty) return toast('الكمية غير كافية', 'error');
+    ex.qty += qty;
+  } else {
+    cart.push({ materialId, name: m.name, qty, price: m.sellPrice, buyPrice: m.buyPrice, currency: cur });
+  }
+  renderCart();
+  if (navigator.vibrate) navigator.vibrate(20);
+};
+window.incCart = function(i) { const c = cart[i], m = state.materials.find(x => x.id === c.materialId); if (c.qty + 1 > m.qty) return toast('غير كافي', 'error'); c.qty += 1; renderCart(); };
+window.decCart = function(i) { if (cart[i].qty > 1) cart[i].qty -= 1; else cart.splice(i, 1); renderCart(); };
+window.removeCart = function(i) { cart.splice(i, 1); renderCart(); };
+
+
+function groupTotals(items) { const g = {}; items.forEach(c => { const k = c.currency || 'SYP'; g[k] = (g[k] || 0) + c.price * c.qty; }); return g; }
+function formatGrouped(g) { const p = []; Object.keys(g).forEach(k => { if (g[k] > 0) p.push(fmt(g[k]) + ' ' + curLabel(k)); }); if (p.length === 0) p.push('0 ' + curLabel(mainCur())); return p.join(' + '); }
+function htmlGrouped(g, cls) { const p = []; Object.keys(g).forEach(k => { if (g[k] > 0) p.push(`<div class="${cls}">${fmt(g[k])} <span class="text-xs">${curLabel(k)}</span></div>`); }); if (p.length === 0) p.push(`<div class="${cls}">0</div>`); return p.join(''); }
+
+
+function renderCart() {
+  const total = formatGrouped(groupTotals(cart));
+  const count = cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cartTotalsDisplay').textContent = total;
+  document.getElementById('cartBadge').textContent = count;
+  document.getElementById('cartTotalsDisplay2').textContent = total;
+  document.getElementById('orderNumberPreview').textContent = '#' + getNextOrderNumber();
+  document.getElementById('cartBadge').style.display = count > 0 ? 'flex' : 'none';
+
+
+  const list = document.getElementById('cartList');
+  if (cart.length === 0) {
+    list.innerHTML = '<p class="text-center text-slate-400 py-10 text-base">🛒 السلة فارغة</p>';
+  } else {
+    list.innerHTML = cart.map((c, i) => {
+      const cur = c.currency || 'SYP';
+      const col = cur === 'USD' ? 'text-indigo-600' : 'text-emerald-700';
+      return `<div class="bg-slate-50 rounded-2xl p-4 flex items-center justify-between gap-3 border-2 border-slate-100">
+        <div class="flex-1 min-w-0">
+          <p class="font-black text-base truncate text-slate-800">${esc(c.name)}</p>
+          <p class="text-sm ${col} font-bold mt-1">${fmt(c.price)} ${curLabel(cur)} × ${c.qty} = <span class="text-slate-800">${fmt(c.price*c.qty)} ${curLabel(cur)}</span></p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="decCart(${i})" class="w-10 h-10 rounded-xl bg-white border-2 border-slate-200 font-bold text-lg">−</button>
+          <span class="w-10 text-center font-black text-lg">${c.qty}</span>
+          <button onclick="incCart(${i})" class="w-10 h-10 rounded-xl bg-white border-2 border-slate-200 font-bold text-lg">+</button>
+          <button onclick="removeCart(${i})" class="w-10 h-10 rounded-xl bg-red-50 text-red-600 font-bold text-lg">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+
+function getNextOrderNumber() {
+  const t = todayYMD();
+  const todayOrders = state.orders.filter(o => o.date === t);
+  const max = todayOrders.reduce((m, o) => Math.max(m, o.number), 0);
+  return Math.min(max + 1, 1000000);
+}
+
+
+document.getElementById('clearCartBtn').addEventListener('click', () => {
+  if (cart.length === 0) return;
+  if (!confirm('إفراغ السلة؟')) return;
+  cart = [];
+  renderCart();
+  toast('🗑️ أُفرغت');
+});
+
+
+document.getElementById('confirmSaleBtn').addEventListener('click', () => {
+  if (cart.length === 0) return toast('السلة فارغة', 'error');
+  const num = getNextOrderNumber();
+  const items = cart.map(c => ({ name: c.name, qty: c.qty, price: c.price, buyPrice: c.buyPrice, currency: c.currency, total: c.price * c.qty }));
+  const totals = groupTotals(cart);
+  const order = { id: uid(), number: num, date: todayYMD(), day: dayName(todayYMD()), time: nowTime(), items, totals, createdAt: Date.now(), isDebt: false };
+  state.orders.push(order);
+  cart.forEach(c => { const m = state.materials.find(x => x.id === c.materialId); if (m) m.qty = Math.max(0, m.qty - c.qty); });
+  saveState();
+  if (state.printing !== false) printOrder(order);
+  cart = [];
+  renderCart();
+  renderCategories();
+  closeAllSheets();
+  if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+  toast('✅ تم البيع #' + num);
+});
+
+
+function printOrder(order) {
+  const totalText = order.totals ? formatGrouped(order.totals) : '—';
+  const itemsHtml = order.items.map(i => `<tr style="border-bottom:1px dashed #eee;"><td style="padding:8px 4px; font-size:15px; font-weight:600;">${esc(i.name)}</td><td style="text-align:center; padding:8px 4px; font-size:15px;">${i.qty}</td><td style="text-align:left; padding:8px 4px; font-size:15px; font-weight:600;">${fmtAmt(i.total, i.currency)}</td></tr>`).join('');
+  const dayText = order.day || dayName(order.date);
+  const html = `<div style="font-family: Cairo, sans-serif; direction: rtl; padding: 20px; max-width: 500px;"><div style="text-align:center; border-bottom:2px dashed #999; padding-bottom:12px; margin-bottom:12px;"><h2 style="margin:0; font-size:26px;">🧾 محاسبي</h2><p style="margin:6px 0; font-size:14px; color:#666;">فاتورة بيع</p></div><div style="font-size:16px; margin-bottom:12px;"><div style="display:flex; justify-content:space-between; padding:4px 0;"><span>رقم الطلب:</span><b>#${order.number}</b></div><div style="display:flex; justify-content:space-between; padding:4px 0;"><span>التاريخ:</span><span>${order.date} — ${dayText}</span></div><div style="display:flex; justify-content:space-between; padding:4px 0;"><span>الوقت:</span><span>${order.time}</span></div></div><table style="width:100%; border-collapse:collapse; font-size:15px;"><thead><tr style="border-bottom:2px solid #333;"><th style="text-align:right; padding:8px 4px;">المادة</th><th style="text-align:center; padding:8px 4px;">كمية</th><th style="text-align:left; padding:8px 4px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:3px solid #333; margin-top:14px; padding-top:14px;"><div style="font-size:14px; color:#666; margin-bottom:6px;">الإجمالي:</div><div style="font-size:22px; font-weight:bold;">${totalText}</div></div><div style="text-align:center; margin-top:24px; font-size:13px; color:#888;">شكراً لتعاملكم معنا 🌟</div></div>`;
+  const area = document.getElementById('printArea');
+  area.innerHTML = html;
+  area.classList.remove('hidden');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { area.classList.add('hidden'); area.innerHTML = ''; }, 500);
+  }, 100);
+}
+
+
+/* ============================================================
+   إضافة مواد
+   ============================================================ */
+const rowsContainer = document.getElementById('rowsContainer');
+
+
+function addRow() {
+  const div = document.createElement('div');
+  div.className = 'bg-white rounded-2xl p-4 border-2 border-slate-100 space-y-3';
+  div.dataset.cur = mainCur();
+  div.innerHTML = `
+    <div>
+      <label class="text-xs font-bold text-slate-500 block mb-1">اسم المادة</label>
+      <input data-f="name" placeholder="اسم المادة" class="input-base">
+    </div>
+    <div>
+      <label class="text-xs font-bold text-slate-500 block mb-1">الباركود (اختياري)</label>
+      <div class="flex gap-2">
+        <input data-f="barcode" placeholder="امسحه أو اكتبه" class="input-base flex-1">
+        <button type="button" data-role="scan" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-2xl flex items-center justify-center active:scale-95 shadow flex-shrink-0">📷</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-xs font-bold text-slate-500 block mb-1">الكمية</label><input data-f="qty" type="number" placeholder="0" class="input-base text-center"></div>
+      <div><label class="text-xs font-bold text-slate-500 block mb-1">العملة</label><button type="button" data-role="cur" class="w-full py-3.5 rounded-2xl border-2 text-sm font-bold transition"></button></div>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-xs font-bold text-slate-500 block mb-1">سعر الشراء</label><input data-f="buy" type="number" placeholder="0" class="input-base text-center"></div>
+      <div><label class="text-xs font-bold text-slate-500 block mb-1">سعر البيع</label><input data-f="sell" type="number" placeholder="0" class="input-base text-center"></div>
+    </div>
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex-1 text-sm font-black text-emerald-700 bg-emerald-50 rounded-xl py-3 px-4 profit-cell text-center">💰 الربح: 0</div>
+      <button type="button" data-role="del" class="w-12 h-12 rounded-xl bg-red-50 text-red-600 font-bold text-xl">✕</button>
+    </div>
+  `;
+  const curBtns = div.querySelectorAll('[data-role="cur"]');
+  const applyCurStyle = () => {
+    const isUSD = div.dataset.cur === 'USD';
+    curBtns.forEach(b => {
+      b.textContent = curLabel(div.dataset.cur);
+      b.className = 'w-full py-3.5 rounded-2xl border-2 text-sm font-bold transition ' + (isUSD ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-emerald-500 text-white border-emerald-500');
+    });
+  };
+  const updateProfit = () => {
+    const q = parseFloat(div.querySelector('[data-f="qty"]').value) || 0;
+    const b = parseFloat(div.querySelector('[data-f="buy"]').value) || 0;
+    const s = parseFloat(div.querySelector('[data-f="sell"]').value) || 0;
+    div.querySelector('.profit-cell').textContent = '💰 الربح: ' + fmt((s-b)*q) + ' ' + curLabel(div.dataset.cur);
+  };
+  curBtns.forEach(btn => btn.addEventListener('click', () => {
+    div.dataset.cur = div.dataset.cur === 'SYP' ? 'USD' : 'SYP';
+    applyCurStyle();
+    updateProfit();
+  }));
+  div.querySelector('[data-role="del"]').addEventListener('click', () => div.remove());
+  div.querySelector('[data-role="scan"]').addEventListener('click', () => {
+    startScanner('fill', div.querySelector('[data-f="barcode"]'));
+  });
+  div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateProfit));
+  applyCurStyle();
+  rowsContainer.appendChild(div);
+}
+document.getElementById('addRowBtn').addEventListener('click', addRow);
+
+
+document.getElementById('saveMaterialsBtn').addEventListener('click', () => {
+  const category = document.getElementById('categoryInput').value.trim();
+  if (!category) return toast('اكتب نوع المادة', 'error');
+  let added = 0;
+  [...rowsContainer.children].forEach(row => {
+    const name = row.querySelector('[data-f="name"]').value.trim();
+    const barcode = row.querySelector('[data-f="barcode"]').value.trim();
+    const qty = parseFloat(row.querySelector('[data-f="qty"]').value);
+    const buy = parseFloat(row.querySelector('[data-f="buy"]').value);
+    const sell = parseFloat(row.querySelector('[data-f="sell"]').value);
+    const cur = row.dataset.cur || mainCur();
+    if (!name || isNaN(qty) || isNaN(buy) || isNaN(sell) || qty <= 0) return;
+    if (barcode && state.materials.some(m => m.barcode === barcode)) {
+      toast('⚠️ الباركود مستخدم: ' + name, 'error');
+      return;
+    }
+    state.materials.push({ id: uid(), category, name, barcode, qty, buyPrice: buy, sellPrice: sell, currency: cur, addedAt: Date.now() });
+    added++;
+  });
+  if (added === 0) return toast('لا توجد مواد صحيحة', 'error');
+  saveState();
+  activeCategory = category;
+  renderCategories();
+  renderItems();
+  closeAllSheets();
+  if (navigator.vibrate) navigator.vibrate(40);
+  toast(`✅ أُضيفت ${added} مادة`);
+});
+
+
+/* ============================================================
+   تعديل مادة
+   ============================================================ */
+document.getElementById('editCategorySelect').addEventListener('change', e => {
+  const cat = e.target.value;
+  const matSel = document.getElementById('editMaterialSelect');
+  document.getElementById('editForm').classList.add('hidden');
+  editingMaterialId = null;
+  if (!cat) { matSel.innerHTML = '<option value="">— اختر القسم أولاً —</option>'; matSel.disabled = true; return; }
+  const mats = state.materials.filter(m => m.category === cat);
+  matSel.innerHTML = '<option value="">— اختر المادة —</option>' + mats.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  matSel.disabled = false;
+});
+document.getElementById('editMaterialSelect').addEventListener('change', e => {
+  const id = e.target.value;
+  editingMaterialId = id;
+  if (!id) { document.getElementById('editForm').classList.add('hidden'); return; }
+  const m = state.materials.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('editName').value = m.name;
+  document.getElementById('editBarcode').value = m.barcode || '';
+  document.getElementById('editCat').value = m.category;
+  document.getElementById('editQty').value = m.qty;
+  document.getElementById('editBuy').value = m.buyPrice;
+  document.getElementById('editSell').value = m.sellPrice;
+  updateEditCurBtn(m.currency || mainCur());
+  document.getElementById('editForm').classList.remove('hidden');
+});
+function updateEditCurBtn(c) {
+  const b = document.getElementById('editCurBtn');
+  b.textContent = curLabel(c);
+  b.dataset.cur = c;
+  b.className = 'px-5 py-2.5 rounded-xl border-2 text-sm font-bold ' + (c === 'USD' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-emerald-500 text-white border-emerald-500');
+}
+document.getElementById('editCurBtn').addEventListener('click', () => {
+  updateEditCurBtn(document.getElementById('editCurBtn').dataset.cur === 'USD' ? 'SYP' : 'USD');
+});
+document.getElementById('saveEditBtn').addEventListener('click', () => {
+  if (!editingMaterialId) return;
+  const m = state.materials.find(x => x.id === editingMaterialId);
+  if (!m) return;
+  const newBarcode = document.getElementById('editBarcode').value.trim();
+  if (newBarcode && state.materials.some(x => x.id !== m.id && x.barcode === newBarcode)) {
+    return toast('⚠️ الباركود مستخدم بمادة أخرى', 'error');
+  }
+  m.name = document.getElementById('editName').value.trim() || m.name;
+  m.barcode = newBarcode;
+  m.category = document.getElementById('editCat').value.trim() || m.category;
+  m.qty = parseFloat(document.getElementById('editQty').value) || 0;
+  m.buyPrice = parseFloat(document.getElementById('editBuy').value) || 0;
+  m.sellPrice = parseFloat(document.getElementById('editSell').value) || 0;
+  m.currency = document.getElementById('editCurBtn').dataset.cur || mainCur();
+  saveState();
+  renderCategories();
+  renderItems();
+  closeAllSheets();
+  toast('✅ تم التعديل');
+});
+document.getElementById('deleteEditBtn').addEventListener('click', () => {
+  if (!editingMaterialId) return;
+  const m = state.materials.find(x => x.id === editingMaterialId);
+  if (!m) return;
+  if (!confirm('حذف "' + m.name + '"؟')) return;
+  state.materials = state.materials.filter(x => x.id !== editingMaterialId);
+  saveState();
+  renderCategories();
+  renderItems();
+  closeAllSheets();
+  toast('🗑️ حُذفت');
+});
+
+
+/* ============================================================
+   عرض QR
+   ============================================================ */
+document.getElementById('qrMaterialSelect').addEventListener('change', e => {
+  const id = e.target.value;
+  const canvas = document.getElementById('qrCanvas');
+  canvas.innerHTML = '';
+  if (!id) return;
+  const m = state.materials.find(x => x.id === id);
+  if (!m) return;
+  const code = (m.barcode && m.barcode.trim()) ? m.barcode.trim() : m.name;
+  try {
+    new QRCode(canvas, { text: code, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.H });
+  } catch(err) { toast('فشل توليد QR', 'error'); return; }
+  const info = document.createElement('p');
+  info.className = 'text-xs text-slate-500 text-center mt-3';
+  info.textContent = m.barcode ? '🔢 الباركود: ' + m.barcode : '📝 الاسم: ' + m.name;
+  canvas.appendChild(info);
+});
+
+
+/* ============================================================
+   الماسح الموحد
+   ============================================================ */
+window.startScanner = function(mode, targetInput) {
+  scannerMode = mode;
+  scannerTargetInput = targetInput || null;
+  const overlay = document.getElementById('scanOverlay');
+  overlay.classList.add('open');
+  const title = document.getElementById('scanTitle');
+  const sub = document.getElementById('scanSubtitle');
+  const err = document.getElementById('scanError');
+  const hint = document.getElementById('scanHint');
+  err.classList.add('hidden');
+  if (mode === 'fill') {
+    title.textContent = 'امسح الباركود';
+    sub.textContent = 'وجّه الكاميرا — يتعبى الحقل تلقائياً';
+  } else {
+    title.textContent = 'مسح للبيع';
+    sub.textContent = 'امسح المنتج — تنبثق نافذة البيع';
+  }
+  hint.textContent = '⏳ جاري التحضير...';
+  scannerRetries = 0;
+  setTimeout(() => scannerStart(), 500);
+};
+
+
+window.closeScanner = function() {
+  document.getElementById('scanOverlay').classList.remove('open');
+  scannerStop();
+};
+
+
+async function scannerStart() {
+  if (scanner || scannerStarting) return;
+
+
+  const readerEl = document.getElementById('universalReader');
+  const err = document.getElementById('scanError');
+  const hint = document.getElementById('scanHint');
+  err.classList.add('hidden');
+
+
+  if (!readerEl || !readerEl.offsetParent || readerEl.offsetWidth < 100) {
+    if (scannerRetries < 15) {
+      scannerRetries++;
+      hint.textContent = '⏳ جاري التحضير...';
+      setTimeout(() => scannerStart(), 250);
+      return;
+    } else {
+      err.textContent = '⚠️ تعذر تحضير الكاميرا — أغلق النافذة وافتحها من جديد';
+      err.classList.remove('hidden');
+      hint.textContent = '';
+      return;
+    }
+  }
+
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    err.textContent = '⚠️ المتصفح ما يدعم الكاميرا';
+    err.classList.remove('hidden');
+    hint.textContent = 'افتح من Chrome أو Edge';
+    return;
+  }
+
+
+  if (location.protocol === 'file:' && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    err.innerHTML = '⚠️ على iPhone، الكاميرا تحتاج HTTPS<br>ارفع الملف على GitHub Pages أو Netlify';
+    err.classList.remove('hidden');
+    hint.textContent = '';
+    return;
+  }
+
+
+  scannerStarting = true;
+  try {
+    scanner = new Html5Qrcode("universalReader", { verbose: false });
+
+
+    const scanConfig = {
+      fps: 15,
+      qrbox: function(vw, vh) {
+        const w = Math.floor(vw * 0.9);
+        const h = Math.floor(vh * 0.5);
+        return { width: Math.max(200, w), height: Math.max(120, h) };
+      }
+    };
+
+
+    const camConfigs = [
+      { facingMode: { ideal: "environment" } },
+      { facingMode: "environment" },
+      { facingMode: "user" }
+    ];
+
+
+    let started = false, lastErr = null;
+    for (const cam of camConfigs) {
+      try {
+        await scanner.start(cam, scanConfig, onScanSuccess, () => {});
+        started = true;
+        break;
+      } catch (e) {
+        lastErr = e;
+        const s = String(e).toLowerCase();
+        if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) break;
+      }
+    }
+
+
+    if (started) {
+      hint.textContent = '✅ جاهز — التقط تلقائي';
+      scannerStarting = false;
+    } else {
+      throw lastErr || new Error('فشل تشغيل الكاميرا');
+    }
+  } catch (err) {
+    scannerStarting = false;
+    let msg = '⚠️ تعذر فتح الكاميرا';
+    const s = (String(err) + ' ' + (err.name||'') + ' ' + (err.message||'')).toLowerCase();
+    if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) msg = '⚠️ ما تم منح صلاحية الكاميرا — اسمح من إعدادات المتصفح';
+    else if (s.includes('notfound') || s.includes('no camera')) msg = '⚠️ ما في كاميرا';
+    else if (s.includes('notreadable') || s.includes('in use')) msg = '⚠️ الكاميرا مشغولة بتطبيق آخر';
+    else if (s.includes('secure') || s.includes('https')) msg = '⚠️ تحتاج HTTPS';
+    else msg = '⚠️ ' + (err.message || String(err));
+    err.textContent = msg;
+    err.classList.remove('hidden');
+    hint.textContent = '';
+    if (scanner) { try { scanner.clear(); } catch(e){} scanner = null; }
+  }
+}
+
+
+function onScanSuccess(decodedText) {
+  const now = Date.now();
+  if (now - lastScanTime < 1500) return;
+  lastScanTime = now;
+  const code = String(decodedText).trim();
+  if (!code) return;
+
+
+  if (navigator.vibrate) navigator.vibrate([50, 80, 50]);
+
+
+  if (scannerMode === 'fill') {
+    if (scannerTargetInput) {
+      scannerTargetInput.value = code;
+      scannerTargetInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    closeScanner();
+    toast('✅ تم قراءة الباركود');
+    return;
+  }
+
+
+  const m = findMaterialByCode(code);
+  if (!m) {
+    toast('❌ غير معروف: ' + code.slice(0, 25), 'error');
+    return;
+  }
+  if (m.qty <= 0) {
+    toast('⚠️ ' + m.name + ' — الكمية خلصت', 'error');
+    return;
+  }
+
+
+  closeScanner();
+  setTimeout(() => showQuickSale(m), 300);
+}
+
+
+function findMaterialByCode(code) {
+  if (!code) return null;
+  const clean = String(code).trim();
+  let m = state.materials.find(x => x.barcode && x.barcode === clean);
+  if (m) return m;
+  const stripped = clean.replace(/^0+/, '');
+  if (stripped.length > 0) {
+    m = state.materials.find(x => x.barcode && x.barcode.replace(/^0+/, '') === stripped);
+    if (m) return m;
+  }
+  m = state.materials.find(x => x.id === clean);
+  if (m) return m;
+  m = state.materials.find(x => x.name === clean);
+  if (m) return m;
+  return null;
+}
+
+
+async function scannerStop() {
+  if (!scanner) { scannerStarting = false; return; }
+  try {
+    if (scanner.isScanning) await scanner.stop();
+    scanner.clear();
+  } catch(e) {}
+  scanner = null;
+  scannerStarting = false;
+}
+
+
+/* ============================================================
+   نافذة تأكيد البيع السريع
+   ============================================================ */
+function showQuickSale(material) {
+  quickSaleMaterial = material;
+  quickSaleQty = 1;
+  const cur = material.currency || mainCur();
+  document.getElementById('qsName').textContent = material.name;
+  document.getElementById('qsBarcode').textContent = material.barcode ? '🔢 ' + material.barcode : '';
+  document.getElementById('qsStock').textContent = '📦 متوفر: ' + fmt(material.qty);
+  document.getElementById('qsPrice').textContent = fmt(material.sellPrice) + ' ' + curLabel(cur);
+  document.getElementById('qsQty').value = 1;
+  document.getElementById('qsQty').max = material.qty;
+  qsUpdate();
+  document.getElementById('quickSaleModal').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('open');
+}
+
+
+function qsUpdate() {
+  if (!quickSaleMaterial) return;
+  const cur = quickSaleMaterial.currency || mainCur();
+  let q = parseInt(document.getElementById('qsQty').value) || 1;
+  if (q < 1) q = 1;
+  if (q > quickSaleMaterial.qty) q = quickSaleMaterial.qty;
+  quickSaleQty = q;
+  document.getElementById('qsQty').value = q;
+  const total = quickSaleMaterial.sellPrice * q;
+  document.getElementById('qsTotal').textContent = fmt(total) + ' ' + curLabel(cur);
+}
+window.qsInc = function() {
+  if (!quickSaleMaterial) return;
+  if (quickSaleQty >= quickSaleMaterial.qty) return toast('وصلت للحد الأقصى', 'error');
+  quickSaleQty++;
+  document.getElementById('qsQty').value = quickSaleQty;
+  qsUpdate();
+};
+window.qsDec = function() {
+  if (quickSaleQty <= 1) return;
+  quickSaleQty--;
+  document.getElementById('qsQty').value = quickSaleQty;
+  qsUpdate();
+};
+window.closeQuickSale = function() {
+  document.getElementById('quickSaleModal').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('open');
+  quickSaleMaterial = null;
+};
+window.qsConfirm = function() {
+  if (!quickSaleMaterial) return;
+  const m = quickSaleMaterial;
+  const q = quickSaleQty;
+  if (q > m.qty) return toast('الكمية غير كافية', 'error');
+  const cur = m.currency || mainCur();
+  const num = getNextOrderNumber();
+  const items = [{ name: m.name, qty: q, price: m.sellPrice, buyPrice: m.buyPrice, currency: cur, total: m.sellPrice * q }];
+  const totals = { [cur]: m.sellPrice * q };
+  const order = { id: uid(), number: num, date: todayYMD(), day: dayName(todayYMD()), time: nowTime(), items, totals, createdAt: Date.now(), isDebt: false, fromScan: true };
+  state.orders.push(order);
+  m.qty = Math.max(0, m.qty - q);
+  saveState();
+  if (state.printing !== false) printOrder(order);
+  renderCategories();
+  renderItems();
+  closeQuickSale();
+  if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+  toast('✅ تم البيع #' + num);
+};
+
+
+document.getElementById('scanSaleBtn').addEventListener('click', () => startScanner('sale', null));
+
+
+/* ============================================================
+   الطلبات
+   ============================================================ */
+document.getElementById('errorsSearch').addEventListener('input', renderOrders);
+
+
+function renderOrders() {
+  const q = document.getElementById('errorsSearch').value.trim();
+  let list = state.orders.slice().sort((a, b) => b.createdAt - a.createdAt);
+  if (q) list = list.filter(o => String(o.number).includes(q));
+  const wrap = document.getElementById('ordersList');
+  const empty = document.getElementById('emptyOrders');
+  if (list.length === 0) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  wrap.innerHTML = list.map(o => {
+    const totals = o.totals || groupTotals(o.items);
+    const itemsHtml = o.items.map(i => `<div class="flex justify-between text-sm py-1 border-b border-slate-100 last:border-0"><span class="truncate">${esc(i.name)} × ${i.qty}</span><span class="font-bold ml-2">${fmtAmt(i.total, i.currency)}</span></div>`).join('');
+    const dayText = o.day || dayName(o.date);
+    const debtBadge = o.isDebt ? `<span class="text-xs px-2 py-0.5 rounded-lg font-bold ${o.debtPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">💳 ${o.debtPaid ? 'مدفوع' : 'دين'}</span>` : '';
+    const scanBadge = o.fromScan ? `<span class="text-xs px-2 py-0.5 rounded-lg bg-purple-100 text-purple-700 font-bold">📷 مسح</span>` : '';
+    const customer = o.isDebt && o.customer ? `<span class="text-xs px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold">👤 ${esc(o.customer)}</span>` : '';
+    return `<div class="bg-white rounded-2xl p-4 border-2 border-slate-100">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-sm">#${o.number}</span>
+          ${debtBadge} ${scanBadge} ${customer}
+        </div>
+        <button onclick="reprintOrder('${o.id}')" class="w-10 h-10 rounded-xl bg-slate-100 font-bold text-base">🖨️</button>
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-500 mb-3"><span>📅 ${o.date} • ${dayText}</span><span>🕐 ${o.time}</span></div>
+      <div class="bg-slate-50 rounded-xl p-3 mb-3">${itemsHtml}</div>
+      <div class="flex items-center justify-between mb-3"><span class="text-sm text-slate-500 font-bold">الإجمالي</span><span class="font-black text-emerald-700 text-lg">${formatGrouped(totals)}</span></div>
+      <div class="flex gap-2">
+        <input data-oid="${o.id}" placeholder="✏️ ملاحظة..." value="${esc(state.notes[o.id]||'')}" class="flex-1 px-3 py-2.5 rounded-xl border-2 border-amber-200 text-sm font-semibold bg-amber-50/50">
+        <button onclick="saveNote('${o.id}')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold text-sm">💾</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.saveNote = function(id) {
+  const i = document.querySelector(`input[data-oid="${id}"]`);
+  if (!i) return;
+  state.notes[id] = i.value;
+  saveState();
+  toast('📝 حُفظت');
+};
+window.reprintOrder = function(id) {
+  const o = state.orders.find(x => x.id === id);
+  if (o) printOrder(o);
+};
+
+
+/* ============================================================
+   المصروفات
+   ============================================================ */
+document.getElementById('expDate').value = todayYMD();
+document.getElementById('addExpBtn').addEventListener('click', () => {
+  const name = document.getElementById('expName').value.trim();
+  const price = parseFloat(document.getElementById('expPrice').value);
+  const cur = document.getElementById('expCur').value;
+  const date = document.getElementById('expDate').value || todayYMD();
+  if (!name || isNaN(price) || price <= 0) return toast('املأ البيانات', 'error');
+  state.expenses.push({ id: uid(), name, price, currency: cur, date, day: dayName(date), createdAt: Date.now() });
+  saveState();
+  document.getElementById('expName').value = '';
+  document.getElementById('expPrice').value = '';
+  renderExpenses();
+  toast('✅ تمت الإضافة');
+});
+function renderExpenses() {
+  const list = state.expenses.slice().sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.createdAt - a.createdAt);
+  const tbody = document.getElementById('expensesTable');
+  const empty = document.getElementById('emptyExpenses');
+  if (list.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); }
+  else {
+    empty.classList.add('hidden');
+    tbody.innerHTML = list.map((e) => `<div class="bg-white rounded-2xl p-4 border-2 border-slate-100 flex items-center justify-between gap-3">
+      <div class="flex-1 min-w-0">
+        <p class="font-black text-base truncate text-slate-800">${esc(e.name)}</p>
+        <p class="text-xs text-slate-500 mt-0.5">${e.date} • ${e.day || dayName(e.date)}</p>
+        <p class="text-base text-red-700 font-black mt-1">${fmtAmt(e.price, e.currency)}</p>
+      </div>
+      <button onclick="deleteExpense('${e.id}')" class="w-12 h-12 rounded-xl bg-red-50 text-red-600 font-bold text-lg">🗑️</button>
+    </div>`).join('');
+  }
+  const g = {};
+  state.expenses.forEach(e => { g[e.currency] = (g[e.currency] || 0) + e.price; });
+  document.getElementById('expTotal').innerHTML = htmlGrouped(g, '');
+}
+window.deleteExpense = function(id) {
+  state.expenses = state.expenses.filter(x => x.id !== id);
+  saveState();
+  renderExpenses();
+  toast('🗑️ حُذف');
+};
+
+
+/* ============================================================
+   الديون
+   ============================================================ */
+document.getElementById('debtDate').value = todayYMD();
+function setupDebtForm() {
+  debtSelected = {};
+  const cats = [...new Set(state.materials.map(m => m.category))].filter(Boolean);
+  const catSel = document.getElementById('debtCategorySelect');
+  catSel.innerHTML = '<option value="">— كل الأقسام —</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  catSel.value = '';
+  renderDebtMaterials();
+  updateDebtTotal();
+}
+document.getElementById('debtCategorySelect').addEventListener('change', renderDebtMaterials);
+
+
+function renderDebtMaterials() {
+  const wrap = document.getElementById('debtMaterialsList');
+  const filterCat = document.getElementById('debtCategorySelect').value;
+  let list = state.materials.slice();
+  if (filterCat) list = list.filter(m => m.category === filterCat);
+  if (list.length === 0) {
+    wrap.innerHTML = '<p class="text-sm text-slate-400 py-4 text-center">لا توجد مواد</p>';
+    return;
+  }
+  wrap.innerHTML = list.map(m => {
+    const cur = m.currency || mainCur();
+    const isChecked = debtSelected[m.id] !== undefined;
+    const qty = isChecked ? debtSelected[m.id] : 1;
+    return `<div class="bg-white rounded-2xl p-3 border-2 ${isChecked ? 'border-amber-400 bg-amber-50' : 'border-slate-100'}">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" class="debt-check w-6 h-6 accent-amber-500 flex-shrink-0" data-id="${m.id}" ${isChecked ? 'checked' : ''}>
+        <div class="flex-1 min-w-0">
+          <p class="font-black text-base truncate text-slate-800">${esc(m.name)}</p>
+          <p class="text-xs text-slate-500">${fmt(m.sellPrice)} ${curLabel(cur)} • متوفر ${fmt(m.qty)}</p>
+        </div>
+      </label>
+      <div class="mt-2 ${isChecked ? '' : 'hidden'}" data-qty-wrap="${m.id}">
+        <input type="number" class="debt-qty input-base !py-2.5 text-center" data-id="${m.id}" value="${qty}" min="1">
+      </div>
+    </div>`;
+  }).join('');
+
+
+  wrap.querySelectorAll('.debt-check').forEach(cb => cb.addEventListener('change', () => {
+    const id = cb.dataset.id;
+    if (cb.checked) debtSelected[id] = 1;
+    else delete debtSelected[id];
+    const wrapEl = wrap.querySelector(`[data-qty-wrap="${id}"]`);
+    if (wrapEl) wrapEl.classList.toggle('hidden', !cb.checked);
+    const parent = cb.closest('div'); // ✅ الإصلاح
+    if (parent) {
+      parent.classList.toggle('border-amber-400', cb.checked);
+      parent.classList.toggle('bg-amber-50', cb.checked);
+      parent.classList.toggle('border-slate-100', !cb.checked);
+    }
+    updateDebtTotal();
+  }));
+
+
+  wrap.querySelectorAll('.debt-qty').forEach(inp => inp.addEventListener('input', () => {
+    const id = inp.dataset.id;
+    const v = parseInt(inp.value) || 1;
+    if (debtSelected[id] !== undefined) {
+      debtSelected[id] = Math.max(1, v);
+      updateDebtTotal();
+    }
+  }));
+}
+
+
+function updateDebtTotal() {
+  const cur = document.getElementById('debtCur').value;
+  let total = 0;
+  Object.keys(debtSelected).forEach(id => {
+    const m = state.materials.find(x => x.id === id);
+    if (m) total += (m.sellPrice || 0) * debtSelected[id];
+  });
+  document.getElementById('debtAutoTotal').textContent = fmt(total) + ' ' + curLabel(cur);
+}
+document.getElementById('debtCur').addEventListener('change', updateDebtTotal);
+
+
+document.getElementById('addDebtBtn').addEventListener('click', () => {
+  const name = document.getElementById('debtName').value.trim();
+  const cur = document.getElementById('debtCur').value;
+  const date = document.getElementById('debtDate').value || todayYMD();
+  if (!name) return toast('اكتب الاسم', 'error');
+  if (Object.keys(debtSelected).length === 0) return toast('اختر مادة', 'error');
+  const items = [];
+  let total = 0;
+  let invalid = false;
+  Object.keys(debtSelected).forEach(id => {
+    const m = state.materials.find(x => x.id === id);
+    if (!m) return;
+    const q = debtSelected[id];
+    if (q > m.qty) { toast('الكمية غير كافية لـ ' + m.name, 'error'); invalid = true; return; }
+    const itemTotal = (m.sellPrice || 0) * q;
+    total += itemTotal;
+    items.push({ name: m.name, qty: q, price: m.sellPrice, buyPrice: m.buyPrice, currency: cur, total: itemTotal });
+  });
+  if (invalid || items.length === 0) return;
+  Object.keys(debtSelected).forEach(id => {
+    const m = state.materials.find(x => x.id === id);
+    if (m) m.qty = Math.max(0, m.qty - debtSelected[id]);
+  });
+  const num = getNextOrderNumber();
+  const order = { id: uid(), number: num, date, day: dayName(date), time: nowTime(), items, totals: { [cur]: total }, createdAt: Date.now(), isDebt: true, debtPaid: false, customer: name };
+  state.orders.push(order);
+  saveState();
+  document.getElementById('debtName').value = '';
+  setupDebtForm();
+  renderDebts();
+  renderCategories();
+  renderItems();
+  toast('✅ تمت إضافة الدين #' + num);
+});
+
+
+function renderDebts() {
+  const debts = state.orders.filter(o => o.isDebt).sort((a,b) => b.createdAt - a.createdAt);
+  const wrap = document.getElementById('debtsList');
+  const empty = document.getElementById('emptyDebts');
+  const unpaidG = {}, paidG = {};
+  debts.forEach(d => {
+    const tot = d.totals || groupTotals(d.items);
+    Object.keys(tot).forEach(k => {
+      if (d.debtPaid) paidG[k] = (paidG[k]||0) + tot[k];
+      else unpaidG[k] = (unpaidG[k]||0) + tot[k];
+    });
+  });
+  document.getElementById('debtUnpaidTotal').innerHTML = htmlGrouped(unpaidG, 'text-amber-700');
+  document.getElementById('debtPaidTotal').innerHTML = htmlGrouped(paidG, 'text-emerald-700');
+  document.getElementById('debtCount').textContent = debts.length;
+  if (debts.length === 0) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  wrap.innerHTML = debts.map(d => {
+    const totals = d.totals || groupTotals(d.items);
+    const paidStyle = d.debtPaid ? 'opacity-70 bg-emerald-50/50 border-emerald-200' : 'bg-gradient-to-l from-amber-50/50 to-yellow-50/30 border-amber-200';
+    const detailsHtml = d.items.map(i => `<div class="flex justify-between text-xs py-1 border-b border-slate-100 last:border-0"><span>${esc(i.name)}</span><span class="font-bold">${i.qty} × ${fmt(i.price)}</span></div>`).join('');
+    return `<div class="border-2 rounded-2xl p-4 ${paidStyle}">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <p class="font-black text-base">👤 ${esc(d.customer || '—')} ${d.debtPaid ? '✅' : '💳'}</p>
+          <p class="text-xs text-slate-500 mt-0.5">#${d.number} • ${d.date} • ${d.time}</p>
+        </div>
+        <p class="font-black text-base ${d.debtPaid ? 'text-emerald-700 line-through' : 'text-amber-700'}">${formatGrouped(totals)}</p>
+      </div>
+      <div class="bg-white rounded-xl p-3 mb-3 border border-slate-100">${detailsHtml}</div>
+      <div class="flex items-center gap-2">
+        ${!d.debtPaid ? `<button onclick="markPaid('${d.id}')" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-sm">✔️ واصل</button>` : `<span class="flex-1 text-center py-3 text-emerald-700 font-black text-sm">✅ مدفوع</span>`}
+        <button onclick="reprintDebt('${d.id}')" class="w-12 h-12 rounded-xl bg-white border-2 border-slate-200 font-bold text-base">🖨️</button>
+        <button onclick="deleteDebt('${d.id}')" class="w-12 h-12 rounded-xl bg-red-50 text-red-600 font-bold text-base">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.markPaid = function(id) {
+  const d = state.orders.find(x => x.id === id && x.isDebt);
+  if (!d) return;
+  d.debtPaid = true;
+  saveState();
+  renderDebts();
+  toast('✅ تم الدفع');
+};
+window.reprintDebt = function(id) {
+  const d = state.orders.find(x => x.id === id);
+  if (d) printOrder(d);
+};
+window.deleteDebt = function(id) {
+  if (!confirm('حذف هذا الدين؟ سترجع الكميات للمخزون.')) return;
+  const d = state.orders.find(x => x.id === id);
+  if (d && !d.debtPaid) {
+    d.items.forEach(item => {
+      const m = state.materials.find(x => x.name === item.name);
+      if (m) m.qty += item.qty;
+    });
+  }
+  state.orders = state.orders.filter(x => x.id !== id);
+  saveState();
+  renderDebts();
+  renderCategories();
+  renderItems();
+  toast('🗑️ حُذف الدين');
+};
+
+
+/* ============================================================
+   النسخ الاحتياطي
+   ============================================================ */
+document.getElementById('saveFileBtn').addEventListener('click', async () => {
+  if (window.showSaveFilePicker) {
+    try {
+      const h = await window.showSaveFilePicker({
+        suggestedName: 'mohasebi_backup.json',
+        types: [{ description: 'ملف النسخ الاحتياطي', accept: { 'application/json': ['.json'] } }]
+      });
+      fileHandle = h;
+      await saveHandle(h);
+      await autoSaveToFile(true);
+      updateBackupUI();
+      if (navigator.vibrate) navigator.vibrate(40);
+      toast('✅ تم الربط — الحفظ التلقائي نشط');
+    } catch(e) {
+      if (e.name !== 'AbortError') {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `mohasebi_backup_${todayYMD()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast('⬇️ تم تنزيل الملف');
+      }
+    }
+  } else {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `mohasebi_backup_${todayYMD()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('⬇️ تم تنزيل الملف');
+  }
+});
+
+
+document.getElementById('restoreFileBtn').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.materials && !data.orders) throw new Error('invalid');
+      if (!confirm('⚠️ سيتم استبدال البيانات. متأكد؟')) return;
+      state = data;
+      ensureCurrencies();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (fileHandle) await autoSaveToFile(true);
+      renderCategories();
+      renderCart();
+      updateBackupUI();
+      toast('✅ تم الاسترداد بنجاح');
+    } catch(err) { toast('❌ ملف غير صالح', 'error'); }
+  };
+  input.click();
+});
+
+
+/* ============================================================
+   الجرد
+   ============================================================ */
+document.querySelectorAll('.inv-tab').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.inv-tab').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  invPeriod = b.dataset.inv;
+  document.getElementById('customRangeWrap').classList.toggle('hidden', invPeriod !== 'custom');
+  renderInventory();
+}));
+document.querySelector('.inv-tab[data-inv="live"]').classList.add('active');
+
+
+document.getElementById('dateFrom').value = dateNDaysAgo(3);
+document.getElementById('dateTo').value = todayYMD();
+document.getElementById('dateFrom').addEventListener('change', renderInventory);
+document.getElementById('dateTo').addEventListener('change', renderInventory);
+
+
+document.querySelectorAll('.quick-range').forEach(b => b.addEventListener('click', () => {
+  const n = parseInt(b.dataset.quick);
+  document.getElementById('dateFrom').value = dateNDaysAgo(n);
+  document.getElementById('dateTo').value = todayYMD();
+  invPeriod = 'custom';
+  document.querySelectorAll('.inv-tab').forEach(x => x.classList.remove('active'));
+  document.querySelector('.inv-tab[data-inv="custom"]').classList.add('active');
+  document.getElementById('customRangeWrap').classList.remove('hidden');
+  renderInventory();
+}));
+
+
+document.querySelectorAll('.inv-filter').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.inv-filter').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  invFilterType = b.dataset.filter;
+  document.getElementById('singleSelectWrap').classList.toggle('hidden', invFilterType !== 'single');
+  document.getElementById('multiSelectWrap').classList.toggle('hidden', invFilterType !== 'multi');
+  renderInventory();
+}));
+document.querySelector('.inv-filter[data-filter="all"]').classList.add('active');
+
+
+function populateInvDropdowns() {
+  const names = new Set();
+  state.orders.forEach(o => o.items.forEach(i => names.add(i.name)));
+  state.materials.forEach(m => names.add(m.name));
+  const all = [...names].filter(Boolean).sort();
+  const sel = document.getElementById('singleMaterialSelect');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— اختر مادة —</option>' + all.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if (all.includes(prev)) sel.value = prev;
+  const wrap = document.getElementById('multiMaterialsList');
+  if (all.length === 0) {
+    wrap.innerHTML = '<p class="text-sm text-slate-400 col-span-2 py-4 text-center">لا توجد</p>';
+  } else {
+    wrap.innerHTML = all.map(n => `<label class="flex items-center gap-2 bg-slate-50 border-2 rounded-xl px-3 py-2.5 cursor-pointer text-sm"><input type="checkbox" class="mat-check accent-emerald-500 w-5 h-5" data-name="${esc(n)}" ${invSelectedMulti.includes(n)?'checked':''}><span class="font-bold truncate">${esc(n)}</span></label>`).join('');
+    wrap.querySelectorAll('.mat-check').forEach(cb => cb.addEventListener('change', () => {
+      if (cb.checked) { if (!invSelectedMulti.includes(cb.dataset.name)) invSelectedMulti.push(cb.dataset.name); }
+      else { invSelectedMulti = invSelectedMulti.filter(x => x !== cb.dataset.name); }
+      updateMultiCount();
+      renderInventory();
+    }));
+  }
+  updateMultiCount();
+}
+function updateMultiCount() {
+  const el = document.getElementById('multiCountText');
+  if (invSelectedMulti.length === 0) el.textContent = 'لم تحدد';
+  else if (invSelectedMulti.length === 1) el.textContent = `✅ ${invSelectedMulti[0]}`;
+  else el.textContent = `✅ ${invSelectedMulti.length} مواد`;
+}
+document.getElementById('singleMaterialSelect').addEventListener('change', e => { invSelectedSingle = e.target.value; renderInventory(); });
+document.getElementById('selectAllMats').addEventListener('click', () => {
+  document.querySelectorAll('.mat-check').forEach(cb => {
+    if (!cb.checked) cb.checked = true;
+    if (!invSelectedMulti.includes(cb.dataset.name)) invSelectedMulti.push(cb.dataset.name);
+  });
+  updateMultiCount();
+  renderInventory();
+});
+document.getElementById('clearAllMats').addEventListener('click', () => {
+  document.querySelectorAll('.mat-check').forEach(cb => { cb.checked = false; });
+  invSelectedMulti = [];
+  updateMultiCount();
+  renderInventory();
+});
+
+
+function inPeriod(date) {
+  const t = todayYMD(), ym = monthYM(), y = yearY();
+  if (invPeriod === 'live') return true;
+  if (invPeriod === 'daily') return date === t;
+  if (invPeriod === 'monthly') return date.startsWith(ym);
+  if (invPeriod === 'yearly') return date.startsWith(y);
+  if (invPeriod === 'custom') {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    if (from && date < from) return false;
+    if (to && date > to) return false;
+    return true;
+  }
+  return true;
+}
+function periodLabel() {
+  const t = todayYMD();
+  if (invPeriod === 'live') return 'كل الأوقات';
+  if (invPeriod === 'daily') return 'اليوم ' + dateFmt(t);
+  if (invPeriod === 'monthly') return 'هذا الشهر';
+  if (invPeriod === 'yearly') return 'هذه السنة';
+  if (invPeriod === 'custom') {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    if (from && to) return 'من ' + dateFmt(from) + ' إلى ' + dateFmt(to);
+    if (from) return 'من ' + dateFmt(from);
+    if (to) return 'حتى ' + dateFmt(to);
+  }
+  return '';
+}
+
+
+function renderInventory() {
+  const orders = state.orders.filter(o => inPeriod(o.date));
+  let itemFilterFn = () => true;
+  let filterLabel = 'كل المواد';
+  if (invFilterType === 'single') {
+    if (invSelectedSingle) { itemFilterFn = i => i.name === invSelectedSingle; filterLabel = 'مادة: ' + invSelectedSingle; }
+    else { itemFilterFn = () => false; filterLabel = 'لم تختر'; }
+  } else if (invFilterType === 'multi') {
+    if (invSelectedMulti.length === 0) { itemFilterFn = () => false; filterLabel = 'لم تحدد'; }
+    else if (invSelectedMulti.length === 1) { itemFilterFn = i => i.name === invSelectedMulti[0]; filterLabel = invSelectedMulti[0]; }
+    else { itemFilterFn = i => invSelectedMulti.includes(i.name); filterLabel = `${invSelectedMulti.length} مواد`; }
+  }
+  const salesG = {}, purchG = {}, expG = {}, debtUnpaidG = {};
+  let totalQty = 0, orderCount = 0;
+  const agg = {};
+  orders.forEach(o => {
+    let has = false;
+    o.items.forEach(i => {
+      if (!itemFilterFn(i)) return;
+      has = true;
+      const cur = i.currency || 'SYP';
+      const t2 = i.total || (i.price * i.qty);
+      const c2 = (i.buyPrice || 0) * i.qty;
+      salesG[cur] = (salesG[cur]||0) + t2;
+      purchG[cur] = (purchG[cur]||0) + c2;
+      if (o.isDebt && !o.debtPaid) debtUnpaidG[cur] = (debtUnpaidG[cur]||0) + t2;
+      totalQty += i.qty;
+      const k = i.name + '||' + cur;
+      if (!agg[k]) agg[k] = { name: i.name, currency: cur, qty: 0, revenue: 0, cost: 0 };
+      agg[k].qty += i.qty;
+      agg[k].revenue += t2;
+      agg[k].cost += c2;
+    });
+    if (has) orderCount++;
+  });
+  if (invFilterType === 'all') {
+    state.expenses.filter(e => inPeriod(e.date)).forEach(e => { expG[e.currency] = (expG[e.currency]||0) + e.price; });
+  }
+  const profitG = {};
+  const allKeys = new Set([...Object.keys(salesG), ...Object.keys(purchG), ...Object.keys(expG)]);
+  allKeys.forEach(k => { profitG[k] = (salesG[k]||0) - (purchG[k]||0) - (expG[k]||0); });
+  document.getElementById('invSales').innerHTML = htmlGrouped(salesG, 'text-blue-700');
+  document.getElementById('invPurchases').innerHTML = htmlGrouped(purchG, 'text-red-700');
+  document.getElementById('invExpenses').innerHTML = htmlGrouped(expG, 'text-orange-700');
+  document.getElementById('invDebts').innerHTML = htmlGrouped(debtUnpaidG, 'text-amber-700');
+  document.getElementById('invProfit').innerHTML = htmlGrouped(profitG, 'text-emerald-700');
+  document.getElementById('invOrdersCount').textContent = orderCount;
+  document.getElementById('invMaterialsCount').textContent = state.materials.length;
+  document.getElementById('invTotalQty').textContent = fmt(totalQty);
+  document.getElementById('invTopOrder').textContent = orders.length ? '#' + Math.max(...orders.map(o=>o.number)) : '0';
+  document.getElementById('invOrdersListRange').textContent = periodLabel();
+
+
+  const ordersSorted = orders.slice().sort((a, b) => b.createdAt - a.createdAt);
+  const ordersList = document.getElementById('invOrdersList');
+  const ordersEmpty = document.getElementById('invOrdersEmpty');
+  if (ordersSorted.length === 0) { ordersList.innerHTML = ''; ordersEmpty.classList.remove('hidden'); }
+  else {
+    ordersEmpty.classList.add('hidden');
+    ordersList.innerHTML = ordersSorted.map(o => {
+      const totals = o.totals || groupTotals(o.items);
+      const dayText = o.day || dayName(o.date);
+      const itemCount = o.items.reduce((s, i) => s + i.qty, 0);
+      const typeBadge = o.isDebt ? `<span class="px-2 py-0.5 rounded-lg text-xs font-bold ${o.debtPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">💳 ${o.debtPaid ? 'مدفوع' : 'دين'}</span>` : `<span class="px-2 py-0.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-700">🛒 بيع</span>`;
+      return `<div class="bg-white rounded-2xl p-3 border border-slate-100">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-sm">#${o.number}</span>
+            ${typeBadge}
+          </div>
+          <button onclick="reprintOrder('${o.id}')" class="w-9 h-9 rounded-lg bg-slate-100 font-bold text-sm">🖨️</button>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500"><span>📅 ${o.date} • ${dayText}</span><span>🕐 ${o.time}</span></div>
+        <div class="flex items-center justify-between mt-2"><span class="text-xs text-slate-500 font-bold">${fmt(itemCount)} قطعة</span><span class="font-black text-emerald-700 text-base">${formatGrouped(totals)}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+
+  const rows = Object.values(agg).sort((a,b) => b.revenue - a.revenue);
+  const detailsList = document.getElementById('invDetailsList');
+  const emptyDiv = document.getElementById('invEmpty');
+  if (rows.length === 0) { detailsList.innerHTML = ''; emptyDiv.classList.remove('hidden'); return; }
+  emptyDiv.classList.add('hidden');
+  detailsList.innerHTML = rows.map((d) => {
+    const profit = d.revenue - d.cost;
+    const percent = d.revenue > 0 ? (profit / d.revenue * 100) : 0;
+    const pClass = profit >= 0 ? 'text-emerald-700' : 'text-red-700';
+    const pSign = profit > 0 ? '+' : '';
+    return `<div class="bg-white rounded-2xl p-4 border border-slate-100">
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-black text-base truncate flex-1 text-slate-800">${esc(d.name)}</span>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 ml-2">${curLabel(d.currency)}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div><p class="text-xs text-slate-500 font-bold">الكمية</p><p class="font-black text-base text-slate-700">${fmt(d.qty)}</p></div>
+        <div><p class="text-xs text-slate-500 font-bold">البيع</p><p class="font-black text-sm text-blue-700">${fmtAmt(d.revenue, d.currency)}</p></div>
+        <div><p class="text-xs text-slate-500 font-bold">الربح</p><p class="font-black text-sm ${pClass}">${pSign}${fmtAmt(profit, d.currency)}</p></div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500">التكلفة: ${fmtAmt(d.cost, d.currency)}</span>
+        <span class="text-xs font-black px-2.5 py-1 rounded-lg ${percent >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${percent.toFixed(1)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+/* ============================================================
+   الإعدادات
+   ============================================================ */
+document.getElementById('mainCurSelect').addEventListener('change', e => {
+  state.mainCurrency = e.target.value;
+  saveState();
+  toast('💱 ' + curName(state.mainCurrency));
+});
+
+
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  askPassword('لحذف جميع البيانات أدخل كلمة السر', () => {
+    const mc = state.mainCurrency;
+    state = { materials: [], orders: [], notes: {}, expenses: [], mainCurrency: mc, printing: state.printing };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    cart = [];
+    activeCategory = '';
+    invSelectedMulti = [];
+    invSelectedSingle = '';
+    debtSelected = {};
+    renderCategories();
+    renderCart();
+    closeSubPage('settingsPage');
+    if (fileHandle) toast('⚠️ انحذفت — الملف محفوظ!');
+    else toast('🗑️ حُذف كل شي');
+    updateBackupUI();
+  });
+});
+
+
+/* ============================================================
+   الإقلاع
+   ============================================================ */
+init();
+if (sessionStorage.getItem(SESSION_KEY) === '1' && localStorage.getItem(LICENSE_KEY)) {
+  showApp();
+}
+</script>
+</body>
+</html>
