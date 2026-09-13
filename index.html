@@ -64,17 +64,20 @@
   .btn-secondary:active { background: #e2e8f0; }
   .scan-overlay { position: fixed; inset: 0; background: #000; z-index: 200; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity .25s; }
   .scan-overlay.open { opacity: 1; pointer-events: auto; }
-  .scan-header { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; }
-  .scan-body { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  #universalReader { width: 100%; height: 100%; }
-  #universalReader video { width: 100% !important; height: 100% !important; object-fit: cover; display: block !important; }
+  .scan-header { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .scan-body { flex: 1; position: relative; background: #000; overflow: hidden; }
+  #universalReader { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #universalReader video { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
+  #universalReader canvas { display: none !important; }
   #universalReader__scan_region { background: transparent !important; }
   #universalReader__scan_region img { display: none !important; }
+  #universalReader__dashboard { display: none !important; }
+  #universalReader__header_message { display: none !important; }
   .scan-frame { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
-  .scan-box { width: 90%; height: 50%; max-width: 600px; max-height: 400px; border: 3px solid #10b981; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,.5); position: relative; }
+  .scan-box { width: 85%; height: 50%; max-width: 500px; max-height: 350px; border: 3px solid #10b981; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,0,0,.45); position: relative; }
   .scan-box::before { content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #10b981; box-shadow: 0 0 12px #10b981; animation: scanline 2s infinite linear; }
   @keyframes scanline { 0% { top: 20%; } 50% { top: 80%; } 100% { top: 20%; } }
-  .scan-footer { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); text-align: center; }
+  .scan-footer { background: rgba(0,0,0,.85); color: white; padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); text-align: center; flex-shrink: 0; }
   .sale-confirm-box { background: white; border-radius: 28px; padding: 0; width: 100%; max-width: 400px; overflow: hidden; transform: scale(.9); opacity: 0; transition: all .3s; box-shadow: 0 24px 70px rgba(0,0,0,.4); }
   .modal-center.open .sale-confirm-box { transform: scale(1); opacity: 1; }
   #qrCanvas canvas, #qrCanvas img { display: block; margin: 0 auto; }
@@ -84,8 +87,6 @@
   .fade-in { animation: fadeIn .35s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-
-  /* ==================== Desktop ==================== */
   @media (min-width: 768px) {
     .app-page { left: 50%; right: auto; width: 500px; margin-left: -250px; box-shadow: 0 0 80px rgba(15,23,42,.15); }
     .sheet { left: 50%; right: auto; width: 500px; margin-left: -250px; }
@@ -96,14 +97,12 @@
     .scan-overlay { left: 50%; right: auto; width: 500px; margin-left: -250px; }
     .sheet-overlay { left: 50%; right: auto; width: 500px; margin-left: -250px; }
     .modal-center { left: 50%; right: auto; width: 500px; margin-left: -250px; }
-    .sub-page:not(.open) { transform: translateX(100%); }
   }
 </style>
 </head>
 <body>
 
-
-<!-- ==================== شاشة الترخيص ==================== -->
+<!-- شاشة الترخيص -->
 <div id="licenseScreen" class="app-page hidden" style="background: linear-gradient(135deg,#4f46e5,#7c3aed,#db2777);">
   <div class="flex-1 flex items-center justify-center p-5 safe-top safe-bottom">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-7">
@@ -119,8 +118,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شاشة الدخول ==================== -->
+<!-- شاشة الدخول -->
 <div id="loginScreen" class="app-page hidden" style="background: linear-gradient(135deg,#059669,#14b8a6,#06b6d4);">
   <div class="flex-1 flex items-center justify-center p-5 safe-top safe-bottom">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-7">
@@ -136,11 +134,8 @@
   </div>
 </div>
 
-
-<!-- ==================== التطبيق الرئيسي ==================== -->
+<!-- التطبيق الرئيسي -->
 <div id="appScreen" class="app-page hidden">
-
-
   <header class="bg-white border-b border-slate-100 safe-top" style="z-index: 40; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03);">
     <div class="px-4 py-3 flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
@@ -158,11 +153,7 @@
     </div>
   </header>
 
-
   <div class="flex-1 relative overflow-hidden">
-
-
-    <!-- عرض البيع -->
     <div id="salesView" class="page-view absolute inset-0 hidden">
       <div class="flex gap-2 overflow-x-auto no-scrollbar pt-4 pb-3 px-4" id="categoriesBar"></div>
       <div class="px-4">
@@ -179,8 +170,6 @@
       </div>
     </div>
 
-
-    <!-- عرض الطلبات -->
     <div id="ordersView" class="page-view absolute inset-0 hidden">
       <div class="p-4">
         <input id="errorsSearch" placeholder="🔍 بحث برقم الطلب..." class="input-base mb-4">
@@ -192,8 +181,6 @@
       </div>
     </div>
 
-
-    <!-- عرض الجرد -->
     <div id="inventoryView" class="page-view absolute inset-0 hidden">
       <div class="p-4 space-y-4">
         <div>
@@ -267,12 +254,8 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
-
-  <!-- شريط السلة -->
   <button id="cartBar" class="cart-bar hidden-bar" onclick="openCartSheet()">
     <div class="flex items-center gap-3">
       <div class="relative">
@@ -287,9 +270,7 @@
     <span class="text-3xl opacity-80">‹</span>
   </button>
 
-
   <button id="fabAdd" class="fab" onclick="openAddSheet()">＋</button>
-
 
   <nav class="bottom-nav" style="flex-shrink: 0;">
     <button data-tab="sales" class="nav-item active"><span class="icon">🛒</span><span class="label">بيع</span></button>
@@ -297,16 +278,11 @@
     <button data-tab="inventory" class="nav-item"><span class="icon">📊</span><span class="label">الجرد</span></button>
     <button id="moreTabBtn" class="nav-item"><span class="icon">☰</span><span class="label">المزيد</span></button>
   </nav>
-
-
 </div>
 
-
-<!-- ==================== الطبقة الشفافة ==================== -->
 <div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
-
-<!-- ==================== شيت السلة ==================== -->
+<!-- شيت السلة -->
 <div id="cartSheet" class="sheet">
   <div class="sheet-handle"></div>
   <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
@@ -327,8 +303,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شيت إضافة المواد ==================== -->
+<!-- شيت إضافة مواد -->
 <div id="addSheet" class="sheet">
   <div class="sheet-handle"></div>
   <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
@@ -352,8 +327,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شيت المزيد ==================== -->
+<!-- شيت المزيد -->
 <div id="moreSheet" class="sheet">
   <div class="sheet-handle"></div>
   <div class="px-5 pt-2 pb-4 border-b border-slate-100">
@@ -371,8 +345,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شيت تعديل مادة ==================== -->
+<!-- شيت تعديل مادة -->
 <div id="editSheet" class="sheet">
   <div class="sheet-handle"></div>
   <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
@@ -412,8 +385,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شيت عرض QR ==================== -->
+<!-- شيت عرض QR -->
 <div id="qrDisplaySheet" class="sheet">
   <div class="sheet-handle"></div>
   <div class="px-5 pt-2 pb-4 flex items-center justify-between border-b border-slate-100">
@@ -427,8 +399,7 @@
   </div>
 </div>
 
-
-<!-- ==================== صفحة المصروفات ==================== -->
+<!-- صفحة المصروفات -->
 <div id="expensesPage" class="sub-page">
   <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
     <div class="px-4 py-3 flex items-center gap-3 h-16">
@@ -455,8 +426,7 @@
   </div>
 </div>
 
-
-<!-- ==================== صفحة الديون ==================== -->
+<!-- صفحة الديون -->
 <div id="debtsPage" class="sub-page">
   <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
     <div class="px-4 py-3 flex items-center gap-3 h-16">
@@ -493,8 +463,7 @@
   </div>
 </div>
 
-
-<!-- ==================== صفحة النسخ الاحتياطي ==================== -->
+<!-- صفحة النسخ الاحتياطي -->
 <div id="backupPage" class="sub-page">
   <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
     <div class="px-4 py-3 flex items-center gap-3 h-16">
@@ -508,41 +477,50 @@
         <div class="flex items-center gap-4">
           <div id="backupStatusIcon" class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-3xl shadow">📁</div>
           <div class="flex-1">
-            <p id="backupStatusTitle" class="font-black text-slate-800 text-base">لم يتم الربط بعد</p>
-            <p id="backupStatusSub" class="text-sm text-slate-500 mt-0.5">اضغط "احفظ الملف" للبدء</p>
+            <p id="backupStatusTitle" class="font-black text-slate-800 text-base">الحفظ التلقائي يعمل</p>
+            <p id="backupStatusSub" class="text-sm text-slate-500 mt-0.5">آخر حفظ: --</p>
           </div>
         </div>
       </div>
+
+      <button id="restoreAutoBtn" class="w-full text-right rounded-3xl p-6 shadow-lg active:scale-[0.98] transition" style="background: linear-gradient(135deg,#7c3aed,#db2777);">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/25 flex items-center justify-center text-4xl">🔄</div>
+          <div class="flex-1 text-white">
+            <p class="font-black text-xl mb-1">استرداد تلقائي</p>
+            <p class="text-sm opacity-95 leading-snug">يرجع آخر نسخة محفوظة تلقائياً</p>
+          </div>
+        </div>
+      </button>
+
       <button id="saveFileBtn" class="w-full text-right rounded-3xl p-6 shadow-lg active:scale-[0.98] transition" style="background: linear-gradient(135deg,#059669,#0891b2);">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-2xl bg-white/25 flex items-center justify-center text-4xl">💾</div>
-          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">احفظ الملف</p><p class="text-sm opacity-95 leading-snug">اختر مكان الحفظ — التطبيق رح يحفظ تلقائياً مع كل تعديل</p></div>
+          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">حفظ ملف خارجي</p><p class="text-sm opacity-95 leading-snug">نزّل ملف JSON واحفظه بمكان آمن</p></div>
         </div>
       </button>
+
       <button id="restoreFileBtn" class="w-full text-right rounded-3xl p-6 shadow-lg active:scale-[0.98] transition" style="background: linear-gradient(135deg,#2563eb,#4f46e5);">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-2xl bg-white/25 flex items-center justify-center text-4xl">📥</div>
-          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">استرداد البيانات</p><p class="text-sm opacity-95 leading-snug">اختر الملف المحفوظ — كل البيانات رح ترجع</p></div>
+          <div class="flex-1 text-white"><p class="font-black text-xl mb-1">استرداد من ملف</p><p class="text-sm opacity-95 leading-snug">اختر ملف JSON محفوظ</p></div>
         </div>
       </button>
+
       <div class="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-5 border border-slate-100">
         <p class="font-black text-slate-700 text-base mb-3">💡 كيف يعمل؟</p>
         <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
-          <li>1️⃣ اضغط "احفظ الملف" واختر مكان على جهازك.</li>
-          <li>2️⃣ <b>كل تعديل يُحفظ تلقائياً في الملف.</b></li>
-          <li>3️⃣ لو حذفت بياناتك — <b>الملف يبقى محفوظ!</b></li>
-          <li>4️⃣ اضغط "استرداد البيانات" — اختر الملف — رجع كل شي.</li>
+          <li>1️⃣ <b>الحفظ التلقائي شغال</b> — كل تعديل يُحفظ في المتصفح تلقائياً</li>
+          <li>2️⃣ <b>الاسترداد التلقائي</b> — يرجّع آخر نسخة بدون ملف</li>
+          <li>3️⃣ <b>الحفظ الخارجي</b> — ملف JSON تحفظه بمكان آمن (Google Drive/USB)</li>
+          <li>4️⃣ <b>لو انحذفت البيانات</b> — استخدم الاسترداد التلقائي أو من ملف</li>
         </ul>
-        <div class="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 leading-relaxed">
-          ⚠️ احفظ الملف بمكان آمن (Google Drive، إيميلك، أو USB).
-        </div>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- ==================== صفحة الإعدادات ==================== -->
+<!-- صفحة الإعدادات -->
 <div id="settingsPage" class="sub-page">
   <header class="bg-white border-b border-slate-100 safe-top" style="flex-shrink: 0;">
     <div class="px-4 py-3 flex items-center gap-3 h-16">
@@ -566,8 +544,7 @@
   </div>
 </div>
 
-
-<!-- ==================== مودال كلمة السر ==================== -->
+<!-- مودال كلمة السر -->
 <div id="passModal" class="modal-center">
   <div class="modal-box">
     <div class="text-center mb-6">
@@ -584,8 +561,7 @@
   </div>
 </div>
 
-
-<!-- ==================== شاشة المسح ==================== -->
+<!-- شاشة المسح -->
 <div id="scanOverlay" class="scan-overlay">
   <div class="scan-header">
     <div class="flex items-center gap-3">
@@ -603,12 +579,11 @@
   </div>
   <div class="scan-footer">
     <div id="scanError" class="hidden text-red-300 text-sm mb-2"></div>
-    <p id="scanHint" class="text-xs opacity-90">التقاط تلقائي — لا تحتاج ضغط شي</p>
+    <p id="scanHint" class="text-xs opacity-90">التقاط تلقائي</p>
   </div>
 </div>
 
-
-<!-- ==================== مودال تأكيد البيع السريع ==================== -->
+<!-- مودال تأكيد البيع السريع -->
 <div id="quickSaleModal" class="modal-center">
   <div class="sale-confirm-box">
     <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white">
@@ -648,22 +623,17 @@
   </div>
 </div>
 
-
 <div id="printArea" class="hidden"></div>
 
-
 <script>
-/* ============================================================
-   الإعدادات الثابتة
-   ============================================================ */
+/* ================== الإعدادات ================== */
 const FIXED_PASSWORD = 'qetummmm11';
 const DELETE_PASSWORD = 'qetummmm2245';
-const STORAGE_KEY = 'mohasebi_v13_data';
-const LICENSE_KEY = 'mohasebi_v13_license';
-const SESSION_KEY = 'mohasebi_v13_session';
+const STORAGE_KEY = 'mohasebi_v14_data';
+const LICENSE_KEY = 'mohasebi_v14_license';
+const SESSION_KEY = 'mohasebi_v14_session';
 const _SECRET_B64 = 'U1lSSUFfTU9IQVNJQkkyMDI1X1NFQ1JFVF9LRVlfRE9fTk9UX1NIQVJF';
 const SECRET = atob(_SECRET_B64);
-
 
 const CURRENCIES = {
   SYP: { label: 'ل.س', name: 'ليرة سورية' }, USD: { label: '$', name: 'دولار أمريكي' },
@@ -680,14 +650,9 @@ const CURRENCIES = {
 };
 const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
-
-/* ============================================================
-   أدوات مساعدة
-   ============================================================ */
 function curLabel(c) { return (CURRENCIES[c] || CURRENCIES.SYP).label; }
 function curName(c) { return (CURRENCIES[c] || CURRENCIES.SYP).name; }
 function dayName(s) { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return isNaN(d.getTime()) ? '' : ARABIC_DAYS[d.getDay()]; }
-
 
 function strongHash(str) {
   let h1 = 0x811c9dc5, h2 = 0x12345678, h3 = 5381;
@@ -704,7 +669,6 @@ function strongHash(str) {
   return (h1.toString(36) + h2.toString(36) + h3.toString(36)).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12).padStart(12, '0');
 }
 
-
 function verifyKey(key) {
   if (!key) return false;
   const clean = String(key).trim().toUpperCase().replace(/\s+/g, '');
@@ -714,41 +678,32 @@ function verifyKey(key) {
   return p[2] === strongHash(p[1] + SECRET);
 }
 
-
-/* ============================================================
-   الحالة
-   ============================================================ */
+/* ================== الحالة ================== */
 let state = loadState();
 function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch {}
   return { materials: [], orders: [], notes: {}, expenses: [], mainCurrency: 'SYP', printing: true };
 }
 
-
-let fileHandle = null;
-let _saveTimeout = null, _fileSaveTimeout = null;
+let _saveTimeout = null, _autoBackupTimeout = null;
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { toast('⚠️ مساحة التخزين ممتلئة', 'error'); }
   clearTimeout(_saveTimeout);
   _saveTimeout = setTimeout(updateBackupUI, 300);
-  clearTimeout(_fileSaveTimeout);
-  _fileSaveTimeout = setTimeout(() => autoSaveToFile(), 500);
+  clearTimeout(_autoBackupTimeout);
+  _autoBackupTimeout = setTimeout(() => saveAutoBackup(), 1500);
 }
-
 
 let cart = [], activeCategory = '', currentTab = 'sales';
 let invPeriod = 'live', invFilterType = 'all';
 let invSelectedSingle = '', invSelectedMulti = [], editingMaterialId = null;
 let debtSelected = {}, pendingPasswordAction = null;
 
-
 let scanner = null, scannerStarting = false;
-let scannerMode = 'sale';
-let scannerTargetInput = null;
+let scannerMode = 'sale', scannerTargetInput = null;
 let lastScanTime = 0;
 let quickSaleMaterial = null, quickSaleQty = 1;
 let scannerRetries = 0;
-
 
 function mainCur() { return state.mainCurrency || 'SYP'; }
 function fmt(n) { return (Number(n)||0).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
@@ -763,7 +718,6 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function dateNDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n + 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function dateFmt(s) { if (!s) return ''; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; }
 
-
 function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className = `fixed bottom-32 left-1/2 -translate-x-1/2 z-[300] px-5 py-3.5 rounded-2xl text-white font-black shadow-2xl text-base fade-in ${type==='success'?'bg-gradient-to-r from-emerald-500 to-teal-600':'bg-gradient-to-r from-red-500 to-orange-500'}`;
@@ -772,10 +726,7 @@ function toast(msg, type='success') {
   setTimeout(() => { el.style.transition='opacity .3s, transform .3s'; el.style.opacity='0'; el.style.transform='translate(-50%, 12px)'; setTimeout(()=>el.remove(),300); }, 2200);
 }
 
-
-/* ============================================================
-   مودال كلمة السر
-   ============================================================ */
+/* ================== كلمة السر ================== */
 function askPassword(msg, onSuccess) {
   document.getElementById('passModalMsg').textContent = msg;
   document.getElementById('passModalInput').value = '';
@@ -804,54 +755,46 @@ document.getElementById('passModalCancel').addEventListener('click', () => {
   pendingPasswordAction = null;
 });
 
-
-/* ============================================================
-   IndexedDB + حفظ تلقائي
-   ============================================================ */
+/* ================== IndexedDB + حفظ تلقائي ================== */
 function openDB() {
   return new Promise((res, rej) => {
-    const r = indexedDB.open('mohasebiV13', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('handles');
+    const r = indexedDB.open('mohasebiV14', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('store');
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
   });
 }
-async function saveHandle(h) { try { const db = await openDB(); db.transaction('handles','readwrite').objectStore('handles').put(h, 'backup'); } catch(e){} }
-async function loadHandle() { try { const db = await openDB(); const r = db.transaction('handles','readonly').objectStore('handles').get('backup'); return new Promise(res => { r.onsuccess = () => res(r.result); r.onerror = () => res(null); }); } catch(e){ return null; } }
 
-
-async function autoSaveToFile(force = false) {
-  if (!fileHandle) return;
-  const isEmpty = (!state.materials || state.materials.length === 0) && (!state.orders || state.orders.length === 0) && (!state.expenses || state.expenses.length === 0);
-  if (isEmpty && !force) { updateBackupUI(); return; }
+async function saveAutoBackup() {
   try {
-    let perm = await fileHandle.queryPermission({ mode: 'readwrite' });
-    if (perm !== 'granted') { perm = await fileHandle.requestPermission({ mode: 'readwrite' }); if (perm !== 'granted') { updateBackupUI(); return; } }
-    const w = await fileHandle.createWritable();
-    await w.write(JSON.stringify(state, null, 2));
-    await w.close();
-    updateBackupUI();
-  } catch(e) { updateBackupUI(); }
+    const db = await openDB();
+    const tx = db.transaction('store', 'readwrite');
+    tx.objectStore('store').put({
+      data: JSON.stringify(state),
+      timestamp: Date.now()
+    }, 'autobackup');
+  } catch(e) { console.error('AutoBackup save failed', e); }
 }
 
+async function loadAutoBackup() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction('store', 'readonly');
+    const req = tx.objectStore('store').get('autobackup');
+    return new Promise(res => {
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => res(null);
+    });
+  } catch(e) { return null; }
+}
 
 function updateBackupUI() {
   const title = document.getElementById('backupStatusTitle');
   const sub = document.getElementById('backupStatusSub');
-  const icon = document.getElementById('backupStatusIcon');
   if (!title) return;
-  const isEmpty = (!state.materials || state.materials.length === 0) && (!state.orders || state.orders.length === 0);
-  if (fileHandle) {
-    title.textContent = '✅ الحفظ التلقائي نشط';
-    sub.textContent = isEmpty ? '⚠️ البيانات فاضية — الملف محفوظ' : 'آخر حفظ: ' + new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    icon.textContent = '✅';
-  } else {
-    title.textContent = 'لم يتم الربط بعد';
-    sub.textContent = 'اضغط "احفظ الملف" للبدء';
-    icon.textContent = '📁';
-  }
+  title.textContent = '✅ الحفظ التلقائي يعمل';
+  sub.textContent = 'آخر حفظ: ' + new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 }
-
 
 function ensureCurrencies() {
   let changed = false;
@@ -864,16 +807,12 @@ function ensureCurrencies() {
   if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-
 function fillCurSelect(sel, def) {
   if (!sel) return;
   sel.innerHTML = Object.keys(CURRENCIES).map(k => `<option value="${k}" ${k===def?'selected':''}>${CURRENCIES[k].label} — ${CURRENCIES[k].name}</option>`).join('');
 }
 
-
-/* ============================================================
-   Sheets / Sub-pages
-   ============================================================ */
+/* ================== Sheets ================== */
 function openSheet(id) {
   closeAllSheets();
   document.getElementById(id).classList.add('open');
@@ -887,7 +826,6 @@ function closeAllSheets() {
 }
 function openSubPage(id) { closeAllSheets(); document.getElementById(id).classList.add('open'); }
 function closeSubPage(id) { document.getElementById(id).classList.remove('open'); }
-
 
 window.openCartSheet = () => { renderCart(); openSheet('cartSheet'); };
 window.openAddSheet = () => {
@@ -917,17 +855,10 @@ window.openDebtsPage = () => { closeAllSheets(); setupDebtForm(); renderDebts();
 window.openBackupPage = () => { closeAllSheets(); updateBackupUI(); openSubPage('backupPage'); };
 window.openSettingsPage = () => { closeAllSheets(); openSubPage('settingsPage'); };
 
-
 document.getElementById('moreTabBtn').addEventListener('click', () => openSheet('moreSheet'));
 document.getElementById('settingsBtn').addEventListener('click', () => openSettingsPage());
 
-
-/* ============================================================
-   التنقل
-   ============================================================ */
 document.querySelectorAll('.nav-item[data-tab]').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-
-
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
@@ -948,15 +879,11 @@ function switchTab(tab) {
     document.querySelector('.nav-item[data-tab="inventory"]').classList.add('active');
     document.getElementById('cartBar').classList.add('hidden-bar');
     document.getElementById('fabAdd').classList.add('hidden-fab');
-    populateInvDropdowns();
-    renderInventory();
+    populateInvDropdowns(); renderInventory();
   }
 }
 
-
-/* ============================================================
-   التهيئة
-   ============================================================ */
+/* ================== التهيئة ================== */
 function init() {
   ensureCurrencies();
   fillCurSelect(document.getElementById('expCur'), 'SYP');
@@ -969,10 +896,8 @@ function init() {
     if (stored) localStorage.removeItem(LICENSE_KEY);
     document.getElementById('licenseScreen').classList.remove('hidden');
   }
-  loadHandle().then(h => { if (h) { fileHandle = h; updateBackupUI(); } else updateBackupUI(); });
   updatePrintBtn();
 }
-
 
 document.getElementById('activateBtn').addEventListener('click', () => {
   const val = document.getElementById('licenseInput').value;
@@ -990,10 +915,8 @@ document.getElementById('activateBtn').addEventListener('click', () => {
 });
 document.getElementById('licenseInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('activateBtn').click(); });
 
-
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
 
 function doLogin() {
   const input = document.getElementById('passwordInput');
@@ -1008,7 +931,6 @@ function doLogin() {
   }
 }
 
-
 function showApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
@@ -1017,8 +939,29 @@ function showApp() {
   renderCategories();
   renderCart();
   switchTab('sales');
-}
+  updateBackupUI();
 
+  // فحص نسخة تلقائية إذا البيانات فاضية
+  if ((!state.materials || state.materials.length === 0) && (!state.orders || state.orders.length === 0)) {
+    setTimeout(async () => {
+      const backup = await loadAutoBackup();
+      if (backup && backup.data) {
+        const date = new Date(backup.timestamp);
+        const dateStr = date.toLocaleDateString('ar-EG') + ' ' + date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        if (confirm('📦 يوجد نسخة تلقائية بتاريخ:\n' + dateStr + '\n\nهل تريد استردادها؟')) {
+          try {
+            state = JSON.parse(backup.data);
+            ensureCurrencies();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderCategories();
+            renderCart();
+            toast('✅ تم استرداد البيانات');
+          } catch(e) {}
+        }
+      }
+    }, 900);
+  }
+}
 
 window.doLogout = function() {
   if (!confirm('هل تريد تسجيل الخروج؟')) return;
@@ -1026,10 +969,6 @@ window.doLogout = function() {
   location.reload();
 };
 
-
-/* ============================================================
-   زر الطباعة
-   ============================================================ */
 function updatePrintBtn() {
   const b = document.getElementById('printToggleBtn');
   if (state.printing !== false) { b.textContent = '🖨️'; b.style.opacity = '1'; }
@@ -1038,16 +977,12 @@ function updatePrintBtn() {
 document.getElementById('printToggleBtn').addEventListener('click', () => {
   askPassword('لتغيير حالة الطباعة أدخل كلمة السر', () => {
     state.printing = state.printing === false ? true : false;
-    saveState();
-    updatePrintBtn();
+    saveState(); updatePrintBtn();
     toast(state.printing ? '🖨️ الطباعة مفعلة' : '🚫 الطباعة معطلة');
   });
 });
 
-
-/* ============================================================
-   شاشة البيع
-   ============================================================ */
+/* ================== البيع ================== */
 function renderCategories() {
   const cats = [...new Set(state.materials.map(m => m.category))].filter(Boolean);
   const bar = document.getElementById('categoriesBar');
@@ -1066,14 +1001,12 @@ function renderCategories() {
   else renderItems();
 }
 
-
 window.selectCategory = function(c) {
   activeCategory = c;
   document.getElementById('categoryTitle').textContent = c;
   renderCategories();
   renderItems();
 };
-
 
 function renderItems() {
   const grid = document.getElementById('itemsGrid');
@@ -1092,7 +1025,6 @@ function renderItems() {
     </button>`;
   }).join('');
 }
-
 
 window.addToCart = function(materialId, qty) {
   const m = state.materials.find(x => x.id === materialId);
@@ -1113,11 +1045,9 @@ window.incCart = function(i) { const c = cart[i], m = state.materials.find(x => 
 window.decCart = function(i) { if (cart[i].qty > 1) cart[i].qty -= 1; else cart.splice(i, 1); renderCart(); };
 window.removeCart = function(i) { cart.splice(i, 1); renderCart(); };
 
-
 function groupTotals(items) { const g = {}; items.forEach(c => { const k = c.currency || 'SYP'; g[k] = (g[k] || 0) + c.price * c.qty; }); return g; }
 function formatGrouped(g) { const p = []; Object.keys(g).forEach(k => { if (g[k] > 0) p.push(fmt(g[k]) + ' ' + curLabel(k)); }); if (p.length === 0) p.push('0 ' + curLabel(mainCur())); return p.join(' + '); }
 function htmlGrouped(g, cls) { const p = []; Object.keys(g).forEach(k => { if (g[k] > 0) p.push(`<div class="${cls}">${fmt(g[k])} <span class="text-xs">${curLabel(k)}</span></div>`); }); if (p.length === 0) p.push(`<div class="${cls}">0</div>`); return p.join(''); }
-
 
 function renderCart() {
   const total = formatGrouped(groupTotals(cart));
@@ -1127,7 +1057,6 @@ function renderCart() {
   document.getElementById('cartTotalsDisplay2').textContent = total;
   document.getElementById('orderNumberPreview').textContent = '#' + getNextOrderNumber();
   document.getElementById('cartBadge').style.display = count > 0 ? 'flex' : 'none';
-
 
   const list = document.getElementById('cartList');
   if (cart.length === 0) {
@@ -1152,14 +1081,12 @@ function renderCart() {
   }
 }
 
-
 function getNextOrderNumber() {
   const t = todayYMD();
   const todayOrders = state.orders.filter(o => o.date === t);
   const max = todayOrders.reduce((m, o) => Math.max(m, o.number), 0);
   return Math.min(max + 1, 1000000);
 }
-
 
 document.getElementById('clearCartBtn').addEventListener('click', () => {
   if (cart.length === 0) return;
@@ -1168,7 +1095,6 @@ document.getElementById('clearCartBtn').addEventListener('click', () => {
   renderCart();
   toast('🗑️ أُفرغت');
 });
-
 
 document.getElementById('confirmSaleBtn').addEventListener('click', () => {
   if (cart.length === 0) return toast('السلة فارغة', 'error');
@@ -1188,7 +1114,6 @@ document.getElementById('confirmSaleBtn').addEventListener('click', () => {
   toast('✅ تم البيع #' + num);
 });
 
-
 function printOrder(order) {
   const totalText = order.totals ? formatGrouped(order.totals) : '—';
   const itemsHtml = order.items.map(i => `<tr style="border-bottom:1px dashed #eee;"><td style="padding:8px 4px; font-size:15px; font-weight:600;">${esc(i.name)}</td><td style="text-align:center; padding:8px 4px; font-size:15px;">${i.qty}</td><td style="text-align:left; padding:8px 4px; font-size:15px; font-weight:600;">${fmtAmt(i.total, i.currency)}</td></tr>`).join('');
@@ -1203,12 +1128,8 @@ function printOrder(order) {
   }, 100);
 }
 
-
-/* ============================================================
-   إضافة مواد
-   ============================================================ */
+/* ================== إضافة مواد ================== */
 const rowsContainer = document.getElementById('rowsContainer');
-
 
 function addRow() {
   const div = document.createElement('div');
@@ -1268,7 +1189,6 @@ function addRow() {
 }
 document.getElementById('addRowBtn').addEventListener('click', addRow);
 
-
 document.getElementById('saveMaterialsBtn').addEventListener('click', () => {
   const category = document.getElementById('categoryInput').value.trim();
   if (!category) return toast('اكتب نوع المادة', 'error');
@@ -1298,10 +1218,7 @@ document.getElementById('saveMaterialsBtn').addEventListener('click', () => {
   toast(`✅ أُضيفت ${added} مادة`);
 });
 
-
-/* ============================================================
-   تعديل مادة
-   ============================================================ */
+/* ================== تعديل مادة ================== */
 document.getElementById('editCategorySelect').addEventListener('change', e => {
   const cat = e.target.value;
   const matSel = document.getElementById('editMaterialSelect');
@@ -1370,10 +1287,7 @@ document.getElementById('deleteEditBtn').addEventListener('click', () => {
   toast('🗑️ حُذفت');
 });
 
-
-/* ============================================================
-   عرض QR
-   ============================================================ */
+/* ================== عرض QR ================== */
 document.getElementById('qrMaterialSelect').addEventListener('change', e => {
   const id = e.target.value;
   const canvas = document.getElementById('qrCanvas');
@@ -1391,10 +1305,7 @@ document.getElementById('qrMaterialSelect').addEventListener('change', e => {
   canvas.appendChild(info);
 });
 
-
-/* ============================================================
-   الماسح الموحد
-   ============================================================ */
+/* ================== الماسح الموحد - النسخة المُصلحة ================== */
 window.startScanner = function(mode, targetInput) {
   scannerMode = mode;
   scannerTargetInput = targetInput || null;
@@ -1417,25 +1328,21 @@ window.startScanner = function(mode, targetInput) {
   setTimeout(() => scannerStart(), 500);
 };
 
-
 window.closeScanner = function() {
   document.getElementById('scanOverlay').classList.remove('open');
   scannerStop();
 };
 
-
 async function scannerStart() {
   if (scanner || scannerStarting) return;
-
 
   const readerEl = document.getElementById('universalReader');
   const err = document.getElementById('scanError');
   const hint = document.getElementById('scanHint');
   err.classList.add('hidden');
 
-
   if (!readerEl || !readerEl.offsetParent || readerEl.offsetWidth < 100) {
-    if (scannerRetries < 15) {
+    if (scannerRetries < 20) {
       scannerRetries++;
       hint.textContent = '⏳ جاري التحضير...';
       setTimeout(() => scannerStart(), 250);
@@ -1448,7 +1355,6 @@ async function scannerStart() {
     }
   }
 
-
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     err.textContent = '⚠️ المتصفح ما يدعم الكاميرا';
     err.classList.remove('hidden');
@@ -1456,38 +1362,52 @@ async function scannerStart() {
     return;
   }
 
-
   if (location.protocol === 'file:' && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    err.innerHTML = '⚠️ على iPhone، الكاميرا تحتاج HTTPS<br>ارفع الملف على GitHub Pages أو Netlify';
+    err.innerHTML = '⚠️ على iPhone، الكاميرا تحتاج HTTPS';
     err.classList.remove('hidden');
     hint.textContent = '';
     return;
   }
 
-
   scannerStarting = true;
-  try {
-    scanner = new Html5Qrcode("universalReader", { verbose: false });
+  hint.textContent = '⏳ جاري فتح الكاميرا...';
 
+  try {
+    const formatsToSupport = [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.CODE_93,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.CODABAR
+    ];
+
+    scanner = new Html5Qrcode("universalReader", {
+      verbose: false,
+      formatsToSupport: formatsToSupport,
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: false
+      }
+    });
 
     const scanConfig = {
-      fps: 15,
-      qrbox: function(vw, vh) {
-        const w = Math.floor(vw * 0.9);
-        const h = Math.floor(vh * 0.5);
-        return { width: Math.max(200, w), height: Math.max(120, h) };
-      }
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0
     };
 
-
     const camConfigs = [
-      { facingMode: { ideal: "environment" } },
       { facingMode: "environment" },
       { facingMode: "user" }
     ];
 
+    let started = false;
+    let lastErr = null;
 
-    let started = false, lastErr = null;
     for (const cam of camConfigs) {
       try {
         await scanner.start(cam, scanConfig, onScanSuccess, () => {});
@@ -1495,11 +1415,11 @@ async function scannerStart() {
         break;
       } catch (e) {
         lastErr = e;
+        console.error('Camera failed with', cam, e);
         const s = String(e).toLowerCase();
         if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) break;
       }
     }
-
 
     if (started) {
       hint.textContent = '✅ جاهز — التقط تلقائي';
@@ -1509,9 +1429,10 @@ async function scannerStart() {
     }
   } catch (err) {
     scannerStarting = false;
+    console.error('Scanner error:', err);
     let msg = '⚠️ تعذر فتح الكاميرا';
     const s = (String(err) + ' ' + (err.name||'') + ' ' + (err.message||'')).toLowerCase();
-    if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) msg = '⚠️ ما تم منح صلاحية الكاميرا — اسمح من إعدادات المتصفح';
+    if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) msg = '⚠️ ما تم منح صلاحية الكاميرا — اسمح من إعدادات المتصفح ثم أعد المحاولة';
     else if (s.includes('notfound') || s.includes('no camera')) msg = '⚠️ ما في كاميرا';
     else if (s.includes('notreadable') || s.includes('in use')) msg = '⚠️ الكاميرا مشغولة بتطبيق آخر';
     else if (s.includes('secure') || s.includes('https')) msg = '⚠️ تحتاج HTTPS';
@@ -1523,7 +1444,6 @@ async function scannerStart() {
   }
 }
 
-
 function onScanSuccess(decodedText) {
   const now = Date.now();
   if (now - lastScanTime < 1500) return;
@@ -1531,9 +1451,7 @@ function onScanSuccess(decodedText) {
   const code = String(decodedText).trim();
   if (!code) return;
 
-
   if (navigator.vibrate) navigator.vibrate([50, 80, 50]);
-
 
   if (scannerMode === 'fill') {
     if (scannerTargetInput) {
@@ -1545,7 +1463,6 @@ function onScanSuccess(decodedText) {
     return;
   }
 
-
   const m = findMaterialByCode(code);
   if (!m) {
     toast('❌ غير معروف: ' + code.slice(0, 25), 'error');
@@ -1556,11 +1473,9 @@ function onScanSuccess(decodedText) {
     return;
   }
 
-
   closeScanner();
   setTimeout(() => showQuickSale(m), 300);
 }
-
 
 function findMaterialByCode(code) {
   if (!code) return null;
@@ -1579,7 +1494,6 @@ function findMaterialByCode(code) {
   return null;
 }
 
-
 async function scannerStop() {
   if (!scanner) { scannerStarting = false; return; }
   try {
@@ -1590,10 +1504,7 @@ async function scannerStop() {
   scannerStarting = false;
 }
 
-
-/* ============================================================
-   نافذة تأكيد البيع السريع
-   ============================================================ */
+/* ================== نافذة البيع السريع ================== */
 function showQuickSale(material) {
   quickSaleMaterial = material;
   quickSaleQty = 1;
@@ -1608,7 +1519,6 @@ function showQuickSale(material) {
   document.getElementById('quickSaleModal').classList.add('open');
   document.getElementById('sheetOverlay').classList.add('open');
 }
-
 
 function qsUpdate() {
   if (!quickSaleMaterial) return;
@@ -1660,16 +1570,10 @@ window.qsConfirm = function() {
   toast('✅ تم البيع #' + num);
 };
 
-
 document.getElementById('scanSaleBtn').addEventListener('click', () => startScanner('sale', null));
 
-
-/* ============================================================
-   الطلبات
-   ============================================================ */
+/* ================== الطلبات ================== */
 document.getElementById('errorsSearch').addEventListener('input', renderOrders);
-
-
 function renderOrders() {
   const q = document.getElementById('errorsSearch').value.trim();
   let list = state.orders.slice().sort((a, b) => b.createdAt - a.createdAt);
@@ -1715,10 +1619,7 @@ window.reprintOrder = function(id) {
   if (o) printOrder(o);
 };
 
-
-/* ============================================================
-   المصروفات
-   ============================================================ */
+/* ================== المصروفات ================== */
 document.getElementById('expDate').value = todayYMD();
 document.getElementById('addExpBtn').addEventListener('click', () => {
   const name = document.getElementById('expName').value.trim();
@@ -1760,10 +1661,7 @@ window.deleteExpense = function(id) {
   toast('🗑️ حُذف');
 };
 
-
-/* ============================================================
-   الديون
-   ============================================================ */
+/* ================== الديون ================== */
 document.getElementById('debtDate').value = todayYMD();
 function setupDebtForm() {
   debtSelected = {};
@@ -1775,7 +1673,6 @@ function setupDebtForm() {
   updateDebtTotal();
 }
 document.getElementById('debtCategorySelect').addEventListener('change', renderDebtMaterials);
-
 
 function renderDebtMaterials() {
   const wrap = document.getElementById('debtMaterialsList');
@@ -1804,14 +1701,13 @@ function renderDebtMaterials() {
     </div>`;
   }).join('');
 
-
   wrap.querySelectorAll('.debt-check').forEach(cb => cb.addEventListener('change', () => {
     const id = cb.dataset.id;
     if (cb.checked) debtSelected[id] = 1;
     else delete debtSelected[id];
     const wrapEl = wrap.querySelector(`[data-qty-wrap="${id}"]`);
     if (wrapEl) wrapEl.classList.toggle('hidden', !cb.checked);
-    const parent = cb.closest('div'); // ✅ الإصلاح
+    const parent = cb.closest('div');
     if (parent) {
       parent.classList.toggle('border-amber-400', cb.checked);
       parent.classList.toggle('bg-amber-50', cb.checked);
@@ -1819,7 +1715,6 @@ function renderDebtMaterials() {
     }
     updateDebtTotal();
   }));
-
 
   wrap.querySelectorAll('.debt-qty').forEach(inp => inp.addEventListener('input', () => {
     const id = inp.dataset.id;
@@ -1831,7 +1726,6 @@ function renderDebtMaterials() {
   }));
 }
 
-
 function updateDebtTotal() {
   const cur = document.getElementById('debtCur').value;
   let total = 0;
@@ -1842,7 +1736,6 @@ function updateDebtTotal() {
   document.getElementById('debtAutoTotal').textContent = fmt(total) + ' ' + curLabel(cur);
 }
 document.getElementById('debtCur').addEventListener('change', updateDebtTotal);
-
 
 document.getElementById('addDebtBtn').addEventListener('click', () => {
   const name = document.getElementById('debtName').value.trim();
@@ -1878,7 +1771,6 @@ document.getElementById('addDebtBtn').addEventListener('click', () => {
   renderItems();
   toast('✅ تمت إضافة الدين #' + num);
 });
-
 
 function renderDebts() {
   const debts = state.orders.filter(o => o.isDebt).sort((a,b) => b.createdAt - a.createdAt);
@@ -1947,45 +1839,33 @@ window.deleteDebt = function(id) {
   toast('🗑️ حُذف الدين');
 };
 
-
-/* ============================================================
-   النسخ الاحتياطي
-   ============================================================ */
-document.getElementById('saveFileBtn').addEventListener('click', async () => {
-  if (window.showSaveFilePicker) {
-    try {
-      const h = await window.showSaveFilePicker({
-        suggestedName: 'mohasebi_backup.json',
-        types: [{ description: 'ملف النسخ الاحتياطي', accept: { 'application/json': ['.json'] } }]
-      });
-      fileHandle = h;
-      await saveHandle(h);
-      await autoSaveToFile(true);
-      updateBackupUI();
-      if (navigator.vibrate) navigator.vibrate(40);
-      toast('✅ تم الربط — الحفظ التلقائي نشط');
-    } catch(e) {
-      if (e.name !== 'AbortError') {
-        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `mohasebi_backup_${todayYMD()}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        toast('⬇️ تم تنزيل الملف');
-      }
-    }
-  } else {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `mohasebi_backup_${todayYMD()}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast('⬇️ تم تنزيل الملف');
-  }
+/* ================== النسخ الاحتياطي ================== */
+document.getElementById('restoreAutoBtn').addEventListener('click', async () => {
+  const backup = await loadAutoBackup();
+  if (!backup || !backup.data) return toast('❌ ما في نسخة تلقائية', 'error');
+  const date = new Date(backup.timestamp);
+  const dateStr = date.toLocaleDateString('ar-EG') + ' — ' + date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+  if (!confirm('⚠️ استرداد النسخة التلقائية بتاريخ:\n' + dateStr + '\n\nسيتم استبدال البيانات الحالية. متأكد؟')) return;
+  try {
+    state = JSON.parse(backup.data);
+    ensureCurrencies();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderCategories();
+    renderCart();
+    updateBackupUI();
+    toast('✅ تم استرداد النسخة التلقائية');
+  } catch(e) { toast('❌ فشل الاسترداد', 'error'); }
 });
 
+document.getElementById('saveFileBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mohasebi_backup_${todayYMD()}_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('⬇️ تم تنزيل الملف — احفظه بمكان آمن');
+});
 
 document.getElementById('restoreFileBtn').addEventListener('click', () => {
   const input = document.createElement('input');
@@ -2002,7 +1882,7 @@ document.getElementById('restoreFileBtn').addEventListener('click', () => {
       state = data;
       ensureCurrencies();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      if (fileHandle) await autoSaveToFile(true);
+      saveAutoBackup();
       renderCategories();
       renderCart();
       updateBackupUI();
@@ -2012,10 +1892,7 @@ document.getElementById('restoreFileBtn').addEventListener('click', () => {
   input.click();
 });
 
-
-/* ============================================================
-   الجرد
-   ============================================================ */
+/* ================== الجرد ================== */
 document.querySelectorAll('.inv-tab').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.inv-tab').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
@@ -2025,12 +1902,10 @@ document.querySelectorAll('.inv-tab').forEach(b => b.addEventListener('click', (
 }));
 document.querySelector('.inv-tab[data-inv="live"]').classList.add('active');
 
-
 document.getElementById('dateFrom').value = dateNDaysAgo(3);
 document.getElementById('dateTo').value = todayYMD();
 document.getElementById('dateFrom').addEventListener('change', renderInventory);
 document.getElementById('dateTo').addEventListener('change', renderInventory);
-
 
 document.querySelectorAll('.quick-range').forEach(b => b.addEventListener('click', () => {
   const n = parseInt(b.dataset.quick);
@@ -2043,7 +1918,6 @@ document.querySelectorAll('.quick-range').forEach(b => b.addEventListener('click
   renderInventory();
 }));
 
-
 document.querySelectorAll('.inv-filter').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.inv-filter').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
@@ -2053,7 +1927,6 @@ document.querySelectorAll('.inv-filter').forEach(b => b.addEventListener('click'
   renderInventory();
 }));
 document.querySelector('.inv-filter[data-filter="all"]').classList.add('active');
-
 
 function populateInvDropdowns() {
   const names = new Set();
@@ -2100,7 +1973,6 @@ document.getElementById('clearAllMats').addEventListener('click', () => {
   renderInventory();
 });
 
-
 function inPeriod(date) {
   const t = todayYMD(), ym = monthYM(), y = yearY();
   if (invPeriod === 'live') return true;
@@ -2131,7 +2003,6 @@ function periodLabel() {
   }
   return '';
 }
-
 
 function renderInventory() {
   const orders = state.orders.filter(o => inPeriod(o.date));
@@ -2185,7 +2056,6 @@ function renderInventory() {
   document.getElementById('invTopOrder').textContent = orders.length ? '#' + Math.max(...orders.map(o=>o.number)) : '0';
   document.getElementById('invOrdersListRange').textContent = periodLabel();
 
-
   const ordersSorted = orders.slice().sort((a, b) => b.createdAt - a.createdAt);
   const ordersList = document.getElementById('invOrdersList');
   const ordersEmpty = document.getElementById('invOrdersEmpty');
@@ -2210,7 +2080,6 @@ function renderInventory() {
       </div>`;
     }).join('');
   }
-
 
   const rows = Object.values(agg).sort((a,b) => b.revenue - a.revenue);
   const detailsList = document.getElementById('invDetailsList');
@@ -2240,16 +2109,12 @@ function renderInventory() {
   }).join('');
 }
 
-
-/* ============================================================
-   الإعدادات
-   ============================================================ */
+/* ================== الإعدادات ================== */
 document.getElementById('mainCurSelect').addEventListener('change', e => {
   state.mainCurrency = e.target.value;
   saveState();
   toast('💱 ' + curName(state.mainCurrency));
 });
-
 
 document.getElementById('clearAllBtn').addEventListener('click', () => {
   askPassword('لحذف جميع البيانات أدخل كلمة السر', () => {
@@ -2264,16 +2129,12 @@ document.getElementById('clearAllBtn').addEventListener('click', () => {
     renderCategories();
     renderCart();
     closeSubPage('settingsPage');
-    if (fileHandle) toast('⚠️ انحذفت — الملف محفوظ!');
-    else toast('🗑️ حُذف كل شي');
+    toast('🗑️ حُذف كل شي');
     updateBackupUI();
   });
 });
 
-
-/* ============================================================
-   الإقلاع
-   ============================================================ */
+/* ================== الإقلاع ================== */
 init();
 if (sessionStorage.getItem(SESSION_KEY) === '1' && localStorage.getItem(LICENSE_KEY)) {
   showApp();
