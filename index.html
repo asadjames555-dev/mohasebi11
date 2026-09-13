@@ -579,7 +579,13 @@
   </div>
   <div class="scan-footer">
     <div id="scanError" class="hidden text-red-300 text-sm mb-2"></div>
-    <p id="scanHint" class="text-xs opacity-90">التقاط تلقائي</p>
+    <p id="scanHint" class="text-xs opacity-90 mb-2">التقاط تلقائي</p>
+    <div class="flex gap-2">
+      <input id="manualCodeInput" placeholder="أو اكتب الباركود يدوياً..." autocomplete="off" spellcheck="false"
+        class="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white text-base font-bold border-2 border-white/30"
+        style="color-scheme: dark;" onkeydown="if(event.key==='Enter')manualScanSubmit()">
+      <button onclick="manualScanSubmit()" class="px-5 py-3 rounded-xl bg-emerald-500 font-black text-base active:bg-emerald-600 transition">✔️</button>
+    </div>
   </div>
 </div>
 
@@ -1307,15 +1313,22 @@ document.getElementById('qrMaterialSelect').addEventListener('change', e => {
 
 /* ================== الماسح الموحد - النسخة المُصلحة ================== */
 window.startScanner = function(mode, targetInput) {
+  if (typeof Html5Qrcode === 'undefined') {
+    toast('⚠️ مكتبة الماسح ما نزلت — تأكد من الإنترنت وأعد تحميل الصفحة', 'error');
+    return;
+  }
   scannerMode = mode;
   scannerTargetInput = targetInput || null;
   const overlay = document.getElementById('scanOverlay');
   overlay.classList.add('open');
+  const manualInput = document.getElementById('manualCodeInput');
+  if (manualInput) manualInput.value = '';
   const title = document.getElementById('scanTitle');
   const sub = document.getElementById('scanSubtitle');
   const err = document.getElementById('scanError');
   const hint = document.getElementById('scanHint');
   err.classList.add('hidden');
+  if (scanner) { scannerStop(); }
   if (mode === 'fill') {
     title.textContent = 'امسح الباركود';
     sub.textContent = 'وجّه الكاميرا — يتعبى الحقل تلقائياً';
@@ -1337,9 +1350,9 @@ async function scannerStart() {
   if (scanner || scannerStarting) return;
 
   const readerEl = document.getElementById('universalReader');
-  const err = document.getElementById('scanError');
+  const errEl = document.getElementById('scanError');
   const hint = document.getElementById('scanHint');
-  err.classList.add('hidden');
+  errEl.classList.add('hidden');
 
   if (!readerEl || !readerEl.offsetParent || readerEl.offsetWidth < 100) {
     if (scannerRetries < 20) {
@@ -1348,24 +1361,24 @@ async function scannerStart() {
       setTimeout(() => scannerStart(), 250);
       return;
     } else {
-      err.textContent = '⚠️ تعذر تحضير الكاميرا — أغلق النافذة وافتحها من جديد';
-      err.classList.remove('hidden');
+      errEl.textContent = '⚠️ تعذر تحضير الكاميرا — أغلق النافذة وافتحها من جديد';
+      errEl.classList.remove('hidden');
       hint.textContent = '';
       return;
     }
   }
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    err.textContent = '⚠️ المتصفح ما يدعم الكاميرا';
-    err.classList.remove('hidden');
-    hint.textContent = 'افتح من Chrome أو Edge';
+    errEl.textContent = '⚠️ المتصفح ما يدعم الكاميرا';
+    errEl.classList.remove('hidden');
+    hint.textContent = 'افتح من Chrome أو Edge أو Safari';
     return;
   }
 
-  if (location.protocol === 'file:' && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    err.innerHTML = '⚠️ على iPhone، الكاميرا تحتاج HTTPS';
-    err.classList.remove('hidden');
-    hint.textContent = '';
+  if (location.protocol === 'http:' && !/localhost|127\.0\.0\.1/.test(location.hostname)) {
+    errEl.textContent = '⚠️ الكاميرا تحتاج HTTPS أو ملف محلي';
+    errEl.classList.remove('hidden');
+    hint.textContent = 'استخدم ملف محلي (file://) أو استضافة HTTPS';
     return;
   }
 
@@ -1427,20 +1440,20 @@ async function scannerStart() {
     } else {
       throw lastErr || new Error('فشل تشغيل الكاميرا');
     }
-  } catch (err) {
+  } catch (e) {
     scannerStarting = false;
-    console.error('Scanner error:', err);
+    console.error('Scanner error:', e);
     let msg = '⚠️ تعذر فتح الكاميرا';
-    const s = (String(err) + ' ' + (err.name||'') + ' ' + (err.message||'')).toLowerCase();
+    const s = (String(e) + ' ' + (e.name||'') + ' ' + (e.message||'')).toLowerCase();
     if (s.includes('permission') || s.includes('denied') || s.includes('notallowed')) msg = '⚠️ ما تم منح صلاحية الكاميرا — اسمح من إعدادات المتصفح ثم أعد المحاولة';
-    else if (s.includes('notfound') || s.includes('no camera')) msg = '⚠️ ما في كاميرا';
-    else if (s.includes('notreadable') || s.includes('in use')) msg = '⚠️ الكاميرا مشغولة بتطبيق آخر';
+    else if (s.includes('notfound') || s.includes('no camera')) msg = '⚠️ ما في كاميرا بالجهاز';
+    else if (s.includes('notreadable') || s.includes('in use')) msg = '⚠️ الكاميرا مشغولة بتطبيق آخر — أغلقه وأعد المحاولة';
     else if (s.includes('secure') || s.includes('https')) msg = '⚠️ تحتاج HTTPS';
-    else msg = '⚠️ ' + (err.message || String(err));
-    err.textContent = msg;
-    err.classList.remove('hidden');
-    hint.textContent = '';
-    if (scanner) { try { scanner.clear(); } catch(e){} scanner = null; }
+    else msg = '⚠️ ' + (e.message || String(e));
+    errEl.textContent = msg;
+    errEl.classList.remove('hidden');
+    hint.textContent = 'يمكنك إدخال الباركود يدوياً بالأسفل 👇';
+    if (scanner) { try { scanner.clear(); } catch(e2){} scanner = null; }
   }
 }
 
@@ -1476,6 +1489,15 @@ function onScanSuccess(decodedText) {
   closeScanner();
   setTimeout(() => showQuickSale(m), 300);
 }
+
+window.manualScanSubmit = function() {
+  const inp = document.getElementById('manualCodeInput');
+  const code = (inp.value || '').trim();
+  if (!code) { toast('✍️ اكتب الباركود أولاً', 'error'); return; }
+  lastScanTime = 0;
+  inp.value = '';
+  onScanSuccess(code);
+};
 
 function findMaterialByCode(code) {
   if (!code) return null;
